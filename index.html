@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sharpen Your Tactics – Flashcards</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Αν θέλεις να χρησιμοποιήσεις Stockfish στο browser:
+       κατέβασε ένα stockfish.js και βάλτο δίπλα στο αρχείο αυτό.
+       <script src="stockfish.js"></script>
+  -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #topBar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.9em;
+    }
+    #card {
+      text-align: center;
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: 6px;
+    }
+    #boardImg {
+      width: 400px;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      margin-top: 8px;
+    }
+    .controls {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 6px 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #777;
+      background: #f4f4f4;
+    }
+    button:hover {
+      background: #e8e8e8;
+    }
+    #solution {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #meta, #stats, #difficulty, #motif, #side {
+      margin-top: 6px;
+      font-size: 0.9em;
+      color: #333;
+    }
+    #favoriteIndicator {
+      font-size: 1.2em;
+      margin-left: 6px;
+    }
+    #favoriteIndicator.active {
+      color: gold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sharpen Your Tactics – Flashcards</h1>
+
+  <div id="topBar">
+    <label>
+      Filter:
+      <select id="filterSelect">
+        <option value="all">All</option>
+        <option value="white">White to move</option>
+        <option value="black">Black to move</option>
+        <option value="favorites">Favorites</option>
+      </select>
+    </label>
+    <button id="btnRandom">Random</button>
+    <button id="btnExport">Export JSON</button>
+    <button id="btnAnalyze">Analyze with Stockfish</button>
+  </div>
+
+  <div id="card">
+    <div id="meta"></div>
+    <img id="boardImg" src="" alt="Position" />
+    <div id="side"></div>
+    <div id="difficulty"></div>
+    <div id="motif"></div>
+    <span id="favoriteIndicator">☆</span>
+
+    <div class="controls">
+      <button id="btnPrev">⟵ Previous</button>
+      <button id="btnShow">Show solution</button>
+      <button id="btnCorrect">I solved it</button>
+      <button id="btnWrong">I missed it</button>
+      <button id="btnFavorite">★ Favorite</button>
+      <button id="btnNext">Next ⟶</button>
+    </div>
+
+    <div id="solution" style="display:none;"></div>
+    <div id="stats"></div>
+  </div>
+
+  <script>
+    // ---- SAFE URL ENCODING FOR IMAGE PATHS ----
+    function safePath(path) {
+      return encodeURI(path);
+    }
+
+    // ---- AUTO-GENERATE CARDS (1125 προβλήματα) ----
+    const TOTAL = 1125;
+    const cards = [];
+
+    for (let i = 1; i <= TOTAL; i++) {
+      cards.push({
+        id: i,
+        bookNumber: i,
+        page: Math.floor((i - 1) / 12) + 1,
+        image: `problems/problem_${i}.png`,
+        // 1️⃣ Αυτόματο side-to-move: μονά = White, ζυγά = Black
+        sideToMove: i % 2 === 1 ? "White" : "Black",
+        // 6️⃣ Motif – προς το παρόν άδειο, μπορούμε να το γεμίσουμε αργότερα
+        motif: [],
+        // 7️⃣ Difficulty – placeholder, μπορείς να το γεμίσεις με βάση το βιβλίο
+        difficulty: null,
+        // 2️⃣ Stockfish – όταν αποκτήσεις FEN, το βάζουμε εδώ (προς το παρόν null)
+        fen: null,
+        // 5️⃣ Spaced repetition
+        ease: 2.5,
+        interval: 1,
+        due: Date.now(),
+        correct: 0,
+        wrong: 0,
+        // 8️⃣ Favorites
+        favorite: false
+      });
+    }
+
+    // ---- PROGRESS & SRS ----
+    const progressKey = "sharpen_flashcards_progress_v3";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(progressKey)) || {}; }
+      catch { return {}; }
+    }
+
+    function saveProgress(data) {
+      localStorage.setItem(progressKey, JSON.stringify(data));
+    }
+
+    let progress = loadProgress();
+
+    function restoreProgressToCards() {
+      for (const card of cards) {
+        const p = progress[card.id];
+        if (p) {
+          card.ease = p.ease ?? card.ease;
+          card.interval = p.interval ?? card.interval;
+          card.due = p.due ?? card.due;
+          card.correct = p.correct ?? 0;
+          card.wrong = p.wrong ?? 0;
+          card.favorite = p.favorite ?? false;
+        }
+      }
+    }
+    restoreProgressToCards();
+
+    function syncCardToProgress(card) {
+      progress[card.id] = {
+        ease: card.ease,
+        interval: card.interval,
+        due: card.due,
+        correct: card.correct,
+        wrong: card.wrong,
+        favorite: card.favorite
+      };
+      saveProgress(progress);
+    }
+
+    function updateCardSRS(card, isCorrect) {
+      if (isCorrect) {
+        card.correct++;
+        card.ease += 0.1;
+        card.interval = Math.ceil(card.interval * card.ease);
+      } else {
+        card.wrong++;
+        card.ease = Math.max(1.3, card.ease * 0.8);
+        card.interval = 1;
+      }
+      card.due = Date.now() + card.interval * 24 * 60 * 60 * 1000;
+      syncCardToProgress(card);
+    }
+
+    // ---- FILTERS (9 & favorites) ----
+    function getFilteredIndices() {
+      const filter = document.getElementById("filterSelect").value;
+      const indices = [];
+      for (let i = 0; i < cards.length; i++) {
+        const c = cards[i];
+        if (filter === "white" && c.sideToMove !== "White") continue;
+        if (filter === "black" && c.sideToMove !== "Black") continue;
+        if (filter === "favorites" && !c.favorite) continue;
+        indices.push(i);
+      }
+      return indices;
+    }
+
+    function getNextDueCardIndex() {
+      const now = Date.now();
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return 0;
+
+      const dueCards = filtered
+        .map(idx => ({ idx, c: cards[idx] }))
+        .filter(obj => obj.c.due <= now);
+
+      if (dueCards.length > 0) {
+        const pick = dueCards[Math.floor(Math.random() * dueCards.length)];
+        return pick.idx;
+      } else {
+        const randomIdx = filtered[Math.floor(Math.random() * filtered.length)];
+        return randomIdx;
+      }
+    }
+
+    function getPrevIndex(currentIndex) {
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return currentIndex;
+      const pos = filtered.indexOf(currentIndex);
+      if (pos === -1) return filtered[0];
+      const newPos = (pos - 1 + filtered.length) % filtered.length;
+      return filtered[newPos];
+    }
+
+    function getNextIndex(currentIndex) {
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return currentIndex;
+      const pos = filtered.indexOf(currentIndex);
+      if (pos === -1) return filtered[0];
+      const newPos = (pos + 1) % filtered.length;
+      return filtered[newPos];
+    }
+
+    // ---- DISPLAY ----
+    let currentIndex = getNextDueCardIndex();
+
+    function showCard(index) {
+      const card = cards[index];
+      const img = document.getElementById("boardImg");
+      img.src = safePath(card.image);
+      img.alt = "Problem " + card.bookNumber;
+
+      document.getElementById("meta").textContent =
+        "Problem " + card.bookNumber + " – page " + card.page;
+
+      document.getElementById("side").textContent =
+        card.sideToMove + " to move";
+
+      document.getElementById("difficulty").textContent =
+        "Difficulty: " + (card.difficulty || "-");
+
+      document.getElementById("motif").textContent =
+        "Motif: " + (card.motif && card.motif.length ? card.motif.join(", ") : "-");
+
+      const favInd = document.getElementById("favoriteIndicator");
+      favInd.classList.toggle("active", card.favorite);
+      favInd.textContent = card.favorite ? "★" : "☆";
+
+      document.getElementById("solution").style.display = "none";
+      document.getElementById("solution").textContent = card.solution || "(no solution yet)";
+
+      document.getElementById("stats").textContent =
+        "Solved: " + card.correct +
+        " | Missed: " + card.wrong +
+        " | Ease: " + card.ease.toFixed(2) +
+        " | Interval: " + card.interval + " days";
+    }
+
+    // ---- BUTTONS ----
+    document.getElementById("btnShow").addEventListener("click", () => {
+      document.getElementById("solution").style.display = "block";
+    });
+
+    document.getElementById("btnNext").addEventListener("click", () => {
+      currentIndex = getNextIndex(currentIndex);
+      showCard(currentIndex);
+    });
+
+    document.getElementById("btnPrev").addEventListener("click", () => {
+      currentIndex = getPrevIndex(currentIndex);
+      showCard(currentIndex);
+    });
+
+    document.getElementById("btnCorrect").addEventListener("click", () => {
+      updateCardSRS(cards[currentIndex], true);
+      currentIndex = getNextDueCardIndex();
+      showCard(currentIndex);
+    });
+
+    document.getElementById("btnWrong").addEventListener("click", () => {
+      updateCardSRS(cards[currentIndex], false);
+      currentIndex = getNextDueCardIndex();
+      showCard(currentIndex);
+    });
+
+    document.getElementById("btnFavorite").addEventListener("click", () => {
+      const card = cards[currentIndex];
+      card.favorite = !card.favorite;
+      syncCardToProgress(card);
+      showCard(currentIndex);
+    });
+
+    // 4️⃣ Random mode
+    document.getElementById("btnRandom").addEventListener("click", () => {
+      const filtered = getFilteredIndices();
+      if (filtered.length === 0) return;
+      currentIndex = filtered[Math.floor(Math.random() * filtered.length)];
+      showCard(currentIndex);
+    });
+
+    document.getElementById("filterSelect").addEventListener("change", () => {
+      currentIndex = getNextDueCardIndex();
+      showCard(currentIndex);
+    });
+
+    // 🔟 Export JSON (χωρίς PGN προς το παρόν)
+    document.getElementById("btnExport").addEventListener("click", () => {
+      const exportData = cards.map(c => ({
+        id: c.id,
+        bookNumber: c.bookNumber,
+        page: c.page,
+        image: c.image,
+        sideToMove: c.sideToMove,
+        motif: c.motif,
+        difficulty: c.difficulty,
+        fen: c.fen,
+        correct: c.correct,
+        wrong: c.wrong,
+        ease: c.ease,
+        interval: c.interval,
+        due: c.due,
+        favorite: c.favorite
+      }));
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "syt_flashcards.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // 2️⃣ Stockfish hook – προς το παρόν μόνο ειδοποίηση αν δεν υπάρχει FEN
+    document.getElementById("btnAnalyze").addEventListener("click", () => {
+      const card = cards[currentIndex];
+      if (!card.fen) {
+        alert("Δεν υπάρχει ακόμη FEN για αυτό το πρόβλημα. Όταν το προσθέσουμε, θα μπορεί να αναλυθεί με Stockfish.");
+        return;
+      }
+      // Εδώ στο μέλλον: engine.postMessage("position fen " + card.fen);
+      // engine.postMessage("go depth 15");
+    });
+
+    // ---- INITIAL LOAD ----
+    showCard(currentIndex);
+  </script>
+</body>
+</html>
