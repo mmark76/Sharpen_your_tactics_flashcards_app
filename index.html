@@ -327,7 +327,20 @@
 
     showCard(currentIndex);
 
+    document.addEventListener("keydown", (ev) => {
+  if (ev.code === "Space") {
+    ev.preventDefault();
+    // ίδιο με Next:
+    if (mode === "ordered") {
+      currentIndex = getNextIndex(currentIndex);
+    } else {
+      currentIndex = getNextDueCardIndex();
+    }
+    showCard(currentIndex);
+  }
+});
   </script>
 </body>
 </html>
+
 
