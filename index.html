@@ -107,23 +107,25 @@
   max-width: 470px;
   margin: 0 auto;
 }
-
+    
+#openFenBuilderBtn {
+  display: block;
+  margin: 0 auto;
+}
+  
   </style>
+  
 </head>
   
 <body>
   <h1>Tactics Flashcards</h1>
-  
   <div id="statusMsg" style="text-align:center; margin-bottom:9px; color:green;"></div>
-
-  <div id="topBar"></div>
-
   <button id="openFenBuilderBtn">Use the FEN Builder</button><br><br>
+  <div id="topBar"></div>
   
   <div id="card">
     <div id="meta"></div>
     <img id="boardImg" src="" alt="Position" />
-    <span id="favoriteIndicator">☆</span>
 
 <div id="controls">
 
@@ -131,6 +133,7 @@
     <button id="previous-btn">← Previous</button>
     <button id="next-btn">Next →</button>
     <button id="favorite-btn">★ Favorite</button>
+    <span id="favoriteIndicator">☆</span>
   </div>
 
   <div id="bottom-file">
@@ -308,6 +311,7 @@ document.getElementById("upload").addEventListener("change", async (e) => {
   </script>
 </body>
 </html>
+
 
 
 
