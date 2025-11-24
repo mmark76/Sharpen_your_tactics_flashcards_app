@@ -316,27 +316,26 @@ document.getElementById("upload").addEventListener("change", async (e) => {
   showCard(currentIndex);
 });
 
-  const fenBtn=document.getElementById('openFenBuilderBtn'); 
-    if(fenBtn){ fenBtn.addEventListener('click', ()=> window.open('https://lichess.org/editor','_blank')); }
+  //  PDF MODAL 
+  // add PDF button dynamically
+  const fenButton = document.getElementById('openFenBuilderBtn');
+  const pdfBtn = document.createElement('button');
+  pdfBtn.textContent = 'Solutions PDF';
+  pdfBtn.style.marginTop = '10px';
+  fenButton.insertAdjacentElement('afterend', pdfBtn);
 
-    document.getElementById('openPdfBtn').onclick = () =>
-  document.getElementById('pdfModal').style.display = 'block';
+  pdfBtn.addEventListener('click', () => {
+    document.getElementById('pdfModal').style.display = 'block';
+  });
 
-document.getElementById('closePdfBtn').onclick = () =>
-  document.getElementById('pdfModal').style.display = 'none';
-    
-  </script>
-
-  <div id="pdfModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; padding:40px;">
-  <div style="background:white; width:90%; height:90%; margin:0 auto; position:relative; padding:10px; border-radius:6px;">
-    <button id="closePdfBtn" style="position:absolute; top:6px; right:6px;">X</button>
-
-    <iframe src="data/Sharpen_Your_Tactics_Solutions.pdf" style="width:100%; height:100%; border:none;"></iframe>
-
-  </div>
+  document.getElementById('closePdfBtn').addEventListener('click', () => {
+    document.getElementById('pdfModal').style.display = 'none';
+  });
+</script>
     
 </body>
 </html>
+
 
 
 
