@@ -104,6 +104,8 @@
   
 <body>
   <h1>Tactics Flashcards</h1>
+  
+  <br><br><div id="statusMsg" style="text-align:center; margin-bottom:10px; font-weight:bold; color:green;"></div>
 
   <div id="topBar"></div>
 
@@ -156,6 +158,13 @@
         favorite: false
       });
     }
+
+    const msgDiv = document.getElementById("statusMsg");
+msgDiv.textContent = "Default images successfully loaded.";
+
+setTimeout(()=>{
+  msgDiv.textContent = "";
+}, 3000);
 
     const progressKey = "sharpen_flashcards_progress_v3";
 
@@ -290,6 +299,7 @@ document.getElementById("upload").addEventListener("change", async (e) => {
   </script>
 </body>
 </html>
+
 
 
 
