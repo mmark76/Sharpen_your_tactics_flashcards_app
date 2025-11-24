@@ -57,7 +57,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    #meta, #stats, #difficulty, #motif, #side {
+    #meta, #stats {
       margin-top: 6px;
       font-size: 0.9em;
       color: #333;
@@ -75,6 +75,8 @@
   <h1>Sharpen Your Tactics – Flashcards</h1>
 
   <div id="topBar">
+
+    <!--
     <label>
       Filter:
       <select id="filterSelect">
@@ -84,20 +86,19 @@
         <option value="favorites">Favorites</option>
       </select>
     </label>
+    -->
 
     <button id="btnRandom">Random</button>
     <button id="btnOrdered">Ordered</button>
 
-    <button id="btnExport">Export JSON</button>
-    <button id="btnAnalyze">Analyze with Stockfish</button>
+    <!-- <button id="btnExport">Export JSON</button> -->
+    <!-- <button id="btnAnalyze">Analyze with Stockfish</button> -->
+
   </div>
 
   <div id="card">
     <div id="meta"></div>
     <img id="boardImg" src="" alt="Position" />
-    <div id="side"></div>
-    <div id="difficulty"></div>
-    <div id="motif"></div>
     <span id="favoriteIndicator">☆</span>
 
     <div class="controls">
@@ -107,8 +108,6 @@
       <button id="btnWrong">I missed it</button>
       <button id="btnFavorite">★ Favorite</button>
       <button id="btnNext">Next ⟶</button>
-<!-- <span style="opacity:0.7;margin-top:6px;">... or press space</span> -->
-
     </div>
 
     <div id="solution" style="display:none;"></div>
@@ -132,10 +131,6 @@
         bookNumber: i,
         page: Math.floor((i - 1) / 12) + 1,
         image: `problems/problem_${i}.png`,
-        sideToMove: i % 2 === 1 ? "White" : "Black",
-        motif: [],
-        difficulty: null,
-        fen: null,
         ease: 2.5,
         interval: 1,
         due: Date.now(),
@@ -185,34 +180,18 @@
       saveProgress(progress);
     }
 
-    function getFilteredIndices() {
-      const filter = document.getElementById("filterSelect").value;
-      const indices = [];
-      for (let i = 0; i < cards.length; i++) {
-        const c = cards[i];
-        if (filter === "white" && c.sideToMove !== "White") continue;
-        if (filter === "black" && c.sideToMove !== "Black") continue;
-        if (filter === "favorites" && !c.favorite) continue;
-        indices.push(i);
-      }
-      return indices;
-    }
-
     function getNextDueCardIndex() {
       const now = Date.now();
-      const filtered = getFilteredIndices();
-      if (filtered.length === 0) return 0;
 
-      const dueCards = filtered
-        .map(idx => ({ idx, c: cards[idx] }))
-        .filter(obj => obj.c.due <= now);
+      const dueCards = cards
+        .map((c, i) => ({c, i}))
+        .filter(o => o.c.due <= now);
 
       if (dueCards.length > 0) {
         const pick = dueCards[Math.floor(Math.random() * dueCards.length)];
-        return pick.idx;
+        return pick.i;
       } else {
-        const randomIdx = filtered[Math.floor(Math.random() * filtered.length)];
-        return randomIdx;
+        return Math.floor(Math.random() * cards.length);
       }
     }
 
@@ -222,31 +201,17 @@
       const card = cards[index];
       const img = document.getElementById("boardImg");
       img.src = safePath(card.image);
-      img.alt = "Problem " + card.bookNumber;
 
-// document.getElementById("meta").textContent =
-//   "Problem " + card.bookNumber + " – page " + card.page;
-
-      document.getElementById("side").textContent = "";
-
-      document.getElementById("difficulty").textContent =
-        "Difficulty: " + (card.difficulty || "-");
-
-      document.getElementById("motif").textContent =
-        "Motif: " + (card.motif && card.motif.length ? card.motif.join(", ") : "-");
-
+      document.getElementById("meta").textContent = "";
+      document.getElementById("solution").style.display = "none";
+      document.getElementById("solution").textContent = card.solution || "";
+      
       const favInd = document.getElementById("favoriteIndicator");
       favInd.classList.toggle("active", card.favorite);
       favInd.textContent = card.favorite ? "★" : "☆";
 
-      document.getElementById("solution").style.display = "none";
-      document.getElementById("solution").textContent = card.solution || "(no solution yet)";
-
       document.getElementById("stats").textContent =
-        "Solved: " + card.correct +
-        " | Missed: " + card.wrong +
-        " | Ease: " + card.ease.toFixed(2) +
-        " | Interval: " + card.interval + " days";
+        "Solved: " + card.correct + " | Missed: " + card.wrong;
     }
 
     document.getElementById("btnShow").addEventListener("click", () => {
@@ -254,31 +219,13 @@
     });
 
     document.getElementById("btnNext").addEventListener("click", () => {
-
-      if (mode === "ordered") {
-        const filtered = getFilteredIndices();
-        const pos = filtered.indexOf(currentIndex);
-        const nextPos = (pos + 1) % filtered.length;
-        currentIndex = filtered[nextPos];
-        showCard(currentIndex);
-      } else {
-        currentIndex = getNextDueCardIndex();
-        showCard(currentIndex);
-      }
+      currentIndex = getNextDueCardIndex();
+      showCard(currentIndex);
     });
 
     document.getElementById("btnPrev").addEventListener("click", () => {
-
-      if (mode === "ordered") {
-        const filtered = getFilteredIndices();
-        const pos = filtered.indexOf(currentIndex);
-        const prevPos = (pos - 1 + filtered.length) % filtered.length;
-        currentIndex = filtered[prevPos];
-        showCard(currentIndex);
-      } else {
-        currentIndex = getNextDueCardIndex();
-        showCard(currentIndex);
-      }
+      currentIndex = getNextDueCardIndex();
+      showCard(currentIndex);
     });
 
     document.getElementById("btnCorrect").addEventListener("click", () => {
@@ -308,47 +255,18 @@
 
     document.getElementById("btnRandom").addEventListener("click", () => {
       mode = "random";
-      const filtered = getFilteredIndices();
-      currentIndex = filtered[Math.floor(Math.random() * filtered.length)];
+      currentIndex = getNextDueCardIndex();
       showCard(currentIndex);
     });
 
     document.getElementById("btnOrdered").addEventListener("click", () => {
       mode = "ordered";
-      const filtered = getFilteredIndices();
-      currentIndex = filtered[0];
-      showCard(currentIndex);
-    });
-
-
-    document.getElementById("filterSelect").addEventListener("change", () => {
-      const filtered = getFilteredIndices();
-      currentIndex = filtered[0];
+      currentIndex = 0;
       showCard(currentIndex);
     });
 
     showCard(currentIndex);
 
-    document.addEventListener("keydown", (ev) => {
-  if (ev.code === "Space") {
-    ev.preventDefault();
-    
-    if (mode === "ordered") {
-      currentIndex = getNextIndex(currentIndex);
-    } else {
-      currentIndex = getNextDueCardIndex();
-    }
-    showCard(currentIndex);
-  }
-});
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
