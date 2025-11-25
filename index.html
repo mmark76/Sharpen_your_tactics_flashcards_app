@@ -138,7 +138,9 @@
 
   <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
 
-  <div id="topBar"></div>
+  <div id="topBar">
+    <button id="modeBtn">Mode: Random</button>
+</div>
   
   <div id="card">
     <div id="meta"></div>
@@ -247,20 +249,23 @@
       saveProgress(progress);
     }
 
-    function getNextDueCardIndex() {
-      const now = Date.now();
+function getNextDueCardIndex() {
+  if (mode === "sequential") {
+    return (currentIndex + 1) % cards.length;
+  }
 
-      const dueCards = cards
-        .map((c, i) => ({c, i}))
-        .filter(o => o.c.due <= now);
+  const now = Date.now();
+  const dueCards = cards
+    .map((c, i) => ({c, i}))
+    .filter(o => o.c.due <= now);
 
-      if (dueCards.length > 0) {
-        const pick = dueCards[Math.floor(Math.random() * dueCards.length)];
-        return pick.i;
-      } else {
-        return Math.floor(Math.random() * cards.length);
-      }
-    }
+  if (dueCards.length > 0) {
+    const pick = dueCards[Math.floor(Math.random() * dueCards.length)];
+    return pick.i;
+  } else {
+    return Math.floor(Math.random() * cards.length);
+  }
+}
 
     let currentIndex = getNextDueCardIndex();
 
@@ -277,6 +282,11 @@
       favInd.classList.toggle("active", card.favorite);
       favInd.textContent = card.favorite ? "★" : "☆";
     }
+document.getElementById("modeBtn").addEventListener("click", () => {
+  mode = (mode === "random") ? "sequential" : "random";
+  document.getElementById("modeBtn").textContent =
+    (mode === "random") ? "Mode: Random" : "Mode: Sequential";
+});
 
     document.getElementById("next-btn").addEventListener("click", () => {
       currentIndex = getNextDueCardIndex();
@@ -353,6 +363,7 @@ if(fenBtn){ fenBtn.addEventListener('click', ()=> window.open('https://lichess.o
   </script>
 </body>
 </html>
+
 
 
 
