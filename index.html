@@ -86,6 +86,23 @@
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
     }
 
+    /* ←–––––––––––––––––––––––––––––– */
+    /* FIX: make file input text visible */
+    input[type="file"] {
+      color:#000;
+    }
+    input[type="file"]::-webkit-file-upload-button {
+      color:#000;
+    }
+
+    .dark-mode input[type="file"] {
+      color:#eee;
+    }
+    .dark-mode input[type="file"]::-webkit-file-upload-button {
+      color:#eee;
+    }
+    /* ––––––––––––––––––––––––––––––→ */
+
     #solution {
       margin-top: 10px;
       font-weight: bold;
@@ -222,7 +239,6 @@
   <script>
 
     let mode = "random";
-
     function safePath(path) {
       return encodeURI(path);
     }
@@ -422,6 +438,7 @@ themeSelect.addEventListener("change", () => {
   
 </body>
 </html>
+
 
 
 
