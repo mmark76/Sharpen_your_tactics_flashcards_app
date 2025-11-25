@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>Tactics Flashcards</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,21 +14,19 @@
       padding: 16px;
     }
 
-    h1 {
-      text-align: center;
-    }
+    h1 { text-align: center; }
 
     #top-center-buttons {
       display:flex;
       justify-content:center;
-      gap:10px;
+      gap:14px;
       margin-bottom:12px;
     }
 
     #topBar {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       justify-content: center;
       align-items: center;
       margin-bottom: 12px;
@@ -37,23 +36,24 @@
     #card {
       text-align: center;
       border: 1px solid #ddd;
-      padding: 12px;
+      padding: 15px;
       border-radius: 6px;
-      max-width: 470px;
+      max-width: 500px;
       margin: 0 auto;
     }
 
     #boardImg {
-      width: 400px;
+      width: 410px;
       max-width: 100%;
       border: 1px solid #ccc;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
+    /* buttons */
     button,
-    input[type="file"],
-    select {
-      padding: 8px 18px;
+    select,
+    input[type="file"] {
+      padding: 8px 20px;
       border-radius: 999px;
       border: 1px solid #d0d7de;
       background: linear-gradient(to bottom, #ffffff, #f3f4f6);
@@ -62,36 +62,48 @@
       font-weight: 500;
     }
 
-    #bottom-file div {
-      font-size: 0.8em;
-      opacity: 0.8;
-      margin-top: 6px;
+    #bottom-file div { font-size:0.78em; opacity:0.8; margin-top:5px; }
+
+    #controls > div {
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
     }
 
-    #favoriteIndicator {
-      font-size: 1.2em;
-      margin-left: 6px;
-    }
-
+    #favoriteIndicator { font-size: 1.4em; margin-left: 5px; }
     #favoriteIndicator.active { color: gold; }
 
-    .dark-mode { background:#1e1e1e; color:#eee; }
-    .dark-mode #card { border-color:#555; }
-    .dark-mode #boardImg { border-color:#666; }
+    /* DARK MODE */
+    .dark-mode { background:#141414; color:#eee; }
+    .dark-mode #card { border-color:#444; }
+    .dark-mode #boardImg { border-color:#555; }
+    .dark-mode button,
+    .dark-mode select,
+    .dark-mode input[type="file"] {
+      background:#2a2a2a;
+      border-color:#666;
+      color:#eee;
+    }
 
   </style>
+
 </head>
 
+
 <body>
+
   <h1>Tactics Flashcards</h1>
 
-  <div id="statusMsg" style="text-align:center; margin-bottom:9px; color:green;"></div>
+  <div id="statusMsg" style="text-align:center; margin-bottom:12px; color:green;"></div>
 
-  <div style="text-align:center; font-size:0.85em; margin-bottom:12px;">
-    <img src="/data/Sharpen cover.png" style="width:120px; display:block; margin:0 auto 6px;">
+  <div style="text-align:center; font-size:0.9em; margin-bottom:15px;">
+    <img src="/data/Sharpen cover.png" style="width:170px; display:block; margin:0 auto 8px;">
     Source of tactical positions: from the book <em>Sharpen Your Tactics!</em><br>
     Grandmaster Anatoly Lein & Boris Archangelsky
   </div>
+
 
   <div id="top-center-buttons">
     <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
@@ -102,16 +114,18 @@
     </select>
   </div>
 
+
   <div id="topBar">
     <button id="modeBtn">Mode: Random</button>
     <button id="jumpBtn">Go to number #</button>
 
     <select id="rangeSelect">
-      <option value="">Choose Difficulty </option>
+      <option value="">Choose Difficulty</option>
       <option value="1-10,12-14">***</option>
       <option value="11,15">****</option>
     </select>
   </div>
+
 
   <div id="card">
 
@@ -138,6 +152,7 @@
 
   </div>
 
+
 <script>
 
 ////////////////////////////////////////////////////////
@@ -146,11 +161,11 @@
 
 let TOTAL = parseInt(prompt("How many images are in your 'problems' folder?"));
 
-if (!Number.isFinite(TOTAL) || TOTAL < 1) {
-  TOTAL = 15;
-}
+if (!Number.isFinite(TOTAL) || TOTAL < 1) TOTAL = 15;
 
 ////////////////////////////////////////////////////////
+
+document.getElementById("statusMsg").textContent = "Default images loaded";
 
 let mode = "random";
 
@@ -221,12 +236,10 @@ document.getElementById("rangeSelect").addEventListener("change", e => {
   showCard(currentIndex);
 });
 
-
 document.getElementById("themeSelect").onchange = e=>{
   if(themeSelect.value==="dark") document.body.classList.add("dark-mode");
   else document.body.classList.remove("dark-mode");
 };
-
 
 document.getElementById('openFenBuilderBtn').onclick=()=>{
   window.open("https://lichess.org/editor","_blank");
