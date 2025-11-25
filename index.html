@@ -17,6 +17,13 @@
       text-align: center;
     }
 
+    #top-center-buttons {
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
     #topBar {
       display: flex;
       flex-direction: row;
@@ -45,7 +52,6 @@
       margin-top: 8px;
     }
 
-    /* Ενιαίο, πιο «μοντέρνο» στυλ για κουμπιά, select και file input */
     button,
     input[type="file"],
     select {
@@ -126,6 +132,21 @@
       opacity: 0.8;
       margin-top: 6px;
     }
+
+    /* DARK MODE */
+    .dark-mode {
+      background:#1e1e1e;
+      color:#eee;
+    }
+
+    .dark-mode #card {
+      border-color:#555;
+    }
+
+    .dark-mode #boardImg {
+      border-color:#666;
+    }
+
   </style>
 </head>
 
@@ -140,8 +161,15 @@
     Grandmaster Anatoly Lein & Boris Archangelsky
   </div>
 
-  <button id="openPdfBtn">Solutions (pdf)</button>
-  <br><br>
+  <div id="top-center-buttons">
+    <button id="openPdfBtn">Solutions (pdf)</button>
+    <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
+
+    <select id="themeSelect">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </div>
 
   <div id="topBar">
     <button id="modeBtn">Mode: Random</button>
@@ -153,28 +181,27 @@
       <option value="601-900">601–900</option>
       <option value="901-1125">901–1125</option>
     </select>
-    <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
   </div>
   
   <div id="card">
     <div id="meta"></div>
     <img id="boardImg" src="" alt="Position" />
 
-<div id="controls">
+    <div id="controls">
 
-  <div id="top-buttons">
-    <button id="previous-btn">← Previous</button>
-    <button id="next-btn">Next →</button>
-    <button id="favorite-btn">★ Favorite</button>
-    <span id="favoriteIndicator">☆</span>
-  </div>
+      <div id="top-buttons">
+        <button id="previous-btn">← Previous</button>
+        <button id="next-btn">Next →</button>
+        <button id="favorite-btn">★ Favorite</button>
+        <span id="favoriteIndicator">☆</span>
+      </div>
 
-  <div id="bottom-file">
-    <input type="file" id="upload" multiple accept="image/*">
-    <div>(Upload only images and screenshots)</div>
-  </div>
+      <div id="bottom-file">
+        <input type="file" id="upload" multiple accept="image/*">
+        <div>(Upload only images and screenshots)</div>
+      </div>
 
-</div>
+    </div>
 
     <div id="solution" style="display:none;"></div>
     <div id="stats"></div>
@@ -385,6 +412,7 @@ if(fenBtn){ fenBtn.addEventListener('click', ()=> window.open('https://lichess.o
   </script>
 </body>
 </html>
+
 
 
 
