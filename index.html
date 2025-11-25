@@ -152,7 +152,7 @@
 
   <div id="topBar">
     <button id="modeBtn">Mode: Random</button>
-    <button id="jumpBtn">Go to problem number #</button>
+    <button id="jumpBtn">Go to number #</button>
 
     <select id="rangeSelect">
       <option value="">Choose Difficulty</option>
@@ -181,7 +181,7 @@
       <div id="bottom-file">
         <input type="file" id="upload" multiple accept="image/*">
         <div>(Upload only images and screenshots)</div>
-        <div style="font-size:0.8em; color:#b91c1c; margin-top:4px;">Images you upload are temporary – lost on refresh</div>
+        <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">The images you uploade are temporary – lost on refresh<br>On refresh you upload the default images.</div>
       </div>
 
     </div>
@@ -190,17 +190,14 @@
 
 
 <script>
-
 let TOTAL = parseInt(prompt("How many images are in your 'problems' folder?"));
-
 if (!Number.isFinite(TOTAL) || TOTAL < 1) TOTAL = 15;
 
-document.getElementById("statusMsg").textContent = "Default (15) images loaded";
-
-let mode = "random";
+const statusMsg = document.getElementById("statusMsg");
+statusMsg.textContent = "Default images loaded";
+statusMsg.style.color = "green";
 
 const cards = [];
-
 for (let i = 1; i <= TOTAL; i++) {
   cards.push({
     id: i,
@@ -210,7 +207,19 @@ for (let i = 1; i <= TOTAL; i++) {
 }
 
 const boardImg = document.getElementById("boardImg");
+const favoriteIndicator = document.getElementById("favoriteIndicator");
+const modeBtn = document.getElementById("modeBtn");
+const uploadInput = document.getElementById("upload");
 
+let currentIndex = 0;
+let mode = "random"; // "random" ή "sequential"
+
+// ενημέρωση κειμένου κουμπιού mode
+function updateModeButton(){
+  modeBtn.textContent = (mode === "random")
+    ? "Mode: Random"
+    : "Mode: Sequential";
+}
 
 function showCard(i){
   const c = cards[i];
@@ -219,21 +228,44 @@ function showCard(i){
   document.getElementById("problemCounter").textContent =
     "Problem " + (i+1) + " of " + cards.length;
 
-  const star = document.getElementById("favoriteIndicator");
-  star.textContent = c.favorite ? "★" : "☆";
-  star.classList.toggle("active", c.favorite);
+  favoriteIndicator.textContent = c.favorite ? "★" : "☆";
+  favoriteIndicator.classList.toggle("active", c.favorite);
 }
 
-let currentIndex = 0;
+updateModeButton();
 showCard(currentIndex);
 
+// toggle mode Random/Sequential
+modeBtn.onclick = () => {
+  mode = (mode === "random") ? "sequential" : "random";
+  updateModeButton();
+};
+
+// helper για τυχαίο index διαφορετικό από το current
+function getRandomDifferentIndex(){
+  if (cards.length <= 1) return currentIndex;
+  let newIndex = currentIndex;
+  while (newIndex === currentIndex) {
+    newIndex = Math.floor(Math.random() * cards.length);
+  }
+  return newIndex;
+}
+
 document.getElementById("next-btn").onclick = ()=>{
-  currentIndex = (currentIndex+1)%cards.length;
+  if (mode === "random") {
+    currentIndex = getRandomDifferentIndex();
+  } else {
+    currentIndex = (currentIndex+1)%cards.length;
+  }
   showCard(currentIndex);
 };
 
 document.getElementById("previous-btn").onclick = ()=>{
-  currentIndex = (currentIndex-1+cards.length)%cards.length;
+  if (mode === "random") {
+    currentIndex = getRandomDifferentIndex();
+  } else {
+    currentIndex = (currentIndex-1+cards.length)%cards.length;
+  }
   showCard(currentIndex);
 };
 
@@ -273,6 +305,37 @@ document.getElementById('openFenBuilderBtn').onclick=()=>{
   window.open("https://lichess.org/editor","_blank");
 };
 
+// ====== UPLOAD HANDLER: προσθήκη uploaded εικόνων + μήνυμα ======
+uploadInput.addEventListener("change", (event) => {
+  const files = Array.from(event.target.files || []).filter(f =>
+    f.type.startsWith("image/")
+  );
+
+  if (!files.length) {
+    statusMsg.textContent = "No image files selected.";
+    statusMsg.style.color = "red";
+    return;
+  }
+
+  files.forEach(file => {
+    const url = URL.createObjectURL(file);
+    cards.push({
+      id: cards.length + 1,
+      image: url,
+      favorite: false
+    });
+  });
+
+  statusMsg.style.color = "green";
+  statusMsg.textContent =
+    files.length === 1
+      ? "1 uploaded image added after the default problems."
+      : files.length + " uploaded images added after the default problems.";
+
+  // Πήγαινε στην πρώτη από τις νέες εικόνες
+  currentIndex = cards.length - files.length;
+  showCard(currentIndex);
+});
 </script>
 
 </body>
