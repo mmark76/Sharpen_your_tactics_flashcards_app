@@ -18,15 +18,14 @@
     }
 
     #top-center-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 12px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:12px;
     }
 
     #topBar {
       display: flex;
-      flex-direction: row;
       flex-wrap: wrap;
       gap: 8px;
       justify-content: center;
@@ -47,7 +46,6 @@
     #boardImg {
       width: 400px;
       max-width: 100%;
-      height: auto;
       border: 1px solid #ccc;
       margin-top: 8px;
     }
@@ -62,86 +60,6 @@
       cursor: pointer;
       font-size: 0.9em;
       font-weight: 500;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-      transition:
-        background 0.15s ease,
-        box-shadow 0.15s ease,
-        transform 0.08s ease,
-        border-color 0.15s ease;
-    }
-
-    button:hover,
-    input[type="file"]:hover,
-    select:hover {
-      background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
-      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.16);
-      transform: translateY(-1px);
-      border-color: #9ca3af;
-    }
-
-    button:active,
-    input[type="file"]:active,
-    select:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
-    }
-
-    /* FIX: make file input text visible */
-    input[type="file"] {
-      color: #000;
-    }
-
-    input[type="file"]::-webkit-file-upload-button {
-      color: #000;
-    }
-
-    .dark-mode input[type="file"] {
-      color: #eee;
-    }
-
-    .dark-mode input[type="file"]::-webkit-file-upload-button {
-      color: #eee;
-    }
-
-    #solution {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    #meta,
-    #stats {
-      margin-top: 6px;
-      font-size: 0.9em;
-      color: #333;
-    }
-
-    #favoriteIndicator {
-      font-size: 1.2em;
-      margin-left: 6px;
-    }
-
-    #favoriteIndicator.active {
-      color: gold;
-    }
-
-    #controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    #top-buttons {
-      display: flex;
-      flex-direction: row;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    #bottom-file {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
     #bottom-file div {
@@ -150,42 +68,17 @@
       margin-top: 6px;
     }
 
-    .dark-mode {
-      background: #1e1e1e;
-      color: #eee;
+    #favoriteIndicator {
+      font-size: 1.2em;
+      margin-left: 6px;
     }
 
-    .dark-mode #card {
-      border-color: #555;
-    }
+    #favoriteIndicator.active { color: gold; }
 
-    .dark-mode #boardImg {
-      border-color: #666;
-    }
+    .dark-mode { background:#1e1e1e; color:#eee; }
+    .dark-mode #card { border-color:#555; }
+    .dark-mode #boardImg { border-color:#666; }
 
-    .dark-mode input[type="file"] {
-      background: #333;
-      color: #eee !important;
-      border-color: #666;
-    }
-
-    .dark-mode input[type="file"]::-webkit-file-upload-button {
-      background: #444;
-      color: #eee !important;
-      border: none;
-    }
-
-    .dark-mode input[type="file"] {
-      box-shadow: 0 1px 2px rgba(255, 255, 255, 0.08);
-    }
-
-    @media (max-width: 480px) {
-      button {
-        padding: 6px 10px;
-        max-width: 140px;
-        font-size: 0.85em;
-      }
-    }
   </style>
 </head>
 
@@ -197,7 +90,7 @@
   <div style="text-align:center; font-size:0.85em; margin-bottom:12px;">
     <img src="/data/Sharpen cover.png" style="width:120px; display:block; margin:0 auto 6px;">
     Source of tactical positions: from the book <em>Sharpen Your Tactics!</em><br>
-    Grandmaster Anatoly Lein &amp; Boris Archangelsky
+    Grandmaster Anatoly Lein & Boris Archangelsky
   </div>
 
   <div id="top-center-buttons">
@@ -221,11 +114,12 @@
   </div>
 
   <div id="card">
-    <div id="meta"></div>
-    <img id="boardImg" src="" alt="Position" />
+
+    <img id="boardImg">
 
     <div id="controls">
-      <div id="top-buttons">
+
+      <div>
         <button id="previous-btn">← Previous</button>
         <button id="next-btn">Next →</button>
         <button id="favorite-btn">★ Favorite</button>
@@ -239,252 +133,106 @@
           Note: Uploaded images are temporary and will be lost after refreshing or closing this page.
         </div>
       </div>
+
     </div>
 
-    <div id="solution" style="display:none;"></div>
-    <div id="stats"></div>
   </div>
 
-  <script>
-    let mode = "random";
+<script>
 
-    function safePath(path) {
-      return encodeURI(path);
+////////////////////////////////////////////////////////
+// user prompt total images
+////////////////////////////////////////////////////////
+
+let TOTAL = parseInt(prompt("How many images are in your 'problems' folder?"));
+
+if (!Number.isFinite(TOTAL) || TOTAL < 1) {
+  TOTAL = 15;
+}
+
+////////////////////////////////////////////////////////
+
+let mode = "random";
+
+const cards = [];
+
+for (let i = 1; i <= TOTAL; i++) {
+  cards.push({
+    id: i,
+    image: `problems/problem_${i}.png`,
+    favorite:false
+  });
+}
+
+const boardImg = document.getElementById("boardImg");
+
+
+function showCard(i){
+  const c = cards[i];
+  boardImg.src = c.image;
+
+  document.getElementById("favoriteIndicator").textContent =
+    c.favorite ? "★" : "☆";
+}
+
+let currentIndex = 0;
+showCard(currentIndex);
+
+document.getElementById("next-btn").onclick = ()=>{
+  currentIndex = (currentIndex+1)%cards.length;
+  showCard(currentIndex);
+};
+
+document.getElementById("previous-btn").onclick = ()=>{
+  currentIndex = (currentIndex-1+cards.length)%cards.length;
+  showCard(currentIndex);
+};
+
+document.getElementById("favorite-btn").onclick = ()=>{
+  const c = cards[currentIndex];
+  c.favorite = !c.favorite;
+  showCard(currentIndex);
+};
+
+document.getElementById("jumpBtn").onclick = ()=>{
+  const v = parseInt(prompt("Enter number (1-"+cards.length+")"));
+  if(v>=1 && v<=cards.length){
+    currentIndex = v-1;
+    showCard(currentIndex);
+  }
+};
+
+document.getElementById("rangeSelect").addEventListener("change", e => {
+  const value = e.target.value.trim();
+  if (!value) return;
+
+  const picks = [];
+  value.split(",").forEach(seg=>{
+    if(seg.includes("-")){
+      let [a,b]=seg.split("-").map(Number);
+      for(let x=a;x<=b;x++) picks.push(x);
+    } else {
+      picks.push(Number(seg));
     }
+  });
 
-    const TOTAL = 15;
-    const cards = [];
+  const r = picks[Math.floor(Math.random()*picks.length)];
+  currentIndex = r-1;
+  showCard(currentIndex);
+});
 
-    for (let i = 1; i <= TOTAL; i++) {
-      cards.push({
-        id: i,
-        image: `problems/problem_${i}.png`,
-        ease: 2.5,
-        interval: 1,
-        due: Date.now(),
-        correct: 0,
-        wrong: 0,
-        favorite: false
-      });
-    }
 
-    const msgDiv = document.getElementById("statusMsg");
-    msgDiv.textContent = "Default images successfully loaded.";
+document.getElementById("themeSelect").onchange = e=>{
+  if(themeSelect.value==="dark") document.body.classList.add("dark-mode");
+  else document.body.classList.remove("dark-mode");
+};
 
-    const progressKey = "sharpen_flashcards_progress_v3";
 
-    function loadProgress() {
-      try {
-        return JSON.parse(localStorage.getItem(progressKey)) || {};
-      } catch {
-        return {};
-      }
-    }
+document.getElementById('openFenBuilderBtn').onclick=()=>{
+  window.open("https://lichess.org/editor","_blank");
+};
 
-    function saveProgress(data) {
-      localStorage.setItem(progressKey, JSON.stringify(data));
-    }
-
-    let progress = loadProgress();
-
-    function restoreProgressToCards() {
-      for (const card of cards) {
-        const p = progress[card.id];
-        if (p) {
-          card.ease = p.ease ?? card.ease;
-          card.interval = p.interval ?? card.interval;
-          card.due = p.due ?? card.due;
-          card.correct = p.correct ?? 0;
-          card.wrong = p.wrong ?? 0;
-          card.favorite = p.favorite ?? false;
-        }
-      }
-    }
-    restoreProgressToCards();
-
-    function syncCardToProgress(card) {
-      progress[card.id] = {
-        ease: card.ease,
-        interval: card.interval,
-        due: card.due,
-        correct: card.correct,
-        wrong: card.wrong,
-        favorite: card.favorite
-      };
-      saveProgress(progress);
-    }
-
-    // ΜΟΝΟ για random/SRS επιλογή
-    function getNextDueCardIndex() {
-      const now = Date.now();
-      const dueCards = cards
-        .map((c, i) => ({ c, i }))
-        .filter(o => o.c.due <= now);
-
-      if (dueCards.length > 0) {
-        const pick = dueCards[Math.floor(Math.random() * dueCards.length)];
-        return pick.i;
-      } else {
-        return Math.floor(Math.random() * cards.length);
-      }
-    }
-
-    let currentIndex = getNextDueCardIndex();
-
-    function showCard(index) {
-      const card = cards[index];
-      const img = document.getElementById("boardImg");
-      img.src = safePath(card.image);
-
-      document.getElementById("meta").textContent = "";
-      const solDiv = document.getElementById("solution");
-      solDiv.style.display = "none";
-      solDiv.textContent = "";
-
-      const favInd = document.getElementById("favoriteIndicator");
-      favInd.classList.toggle("active", card.favorite);
-      favInd.textContent = card.favorite ? "★" : "☆";
-    }
-
-    document.getElementById("modeBtn").addEventListener("click", () => {
-      mode = (mode === "random") ? "sequential" : "random";
-      document.getElementById("modeBtn").textContent =
-        (mode === "random") ? "Mode: Random" : "Mode: Sequential";
-    });
-
-    // NEXT
-    document.getElementById("next-btn").addEventListener("click", () => {
-      if (mode === "sequential") {
-        currentIndex = (currentIndex + 1 + cards.length) % cards.length;
-      } else {
-        currentIndex = getNextDueCardIndex();
-      }
-      showCard(currentIndex);
-    });
-
-    // PREVIOUS
-    document.getElementById("previous-btn").addEventListener("click", () => {
-      if (mode === "sequential") {
-        currentIndex = (currentIndex - 1 + cards.length) % cards.length;
-      } else {
-        // σε random mode ξανατραβάμε due/random κάρτα
-        currentIndex = getNextDueCardIndex();
-      }
-      showCard(currentIndex);
-    });
-
-    document.getElementById("favorite-btn").addEventListener("click", () => {
-      const card = cards[currentIndex];
-      card.favorite = !card.favorite;
-      syncCardToProgress(card);
-      showCard(currentIndex);
-    });
-
-    window.addEventListener("load", () => {
-      currentIndex = getNextDueCardIndex();
-      showCard(currentIndex);
-    });
-
-    document.getElementById("jumpBtn").addEventListener("click", () => {
-      const n = parseInt(prompt("Enter card number (1-" + cards.length + "):"));
-      if (!n || n < 1 || n > cards.length) return;
-      currentIndex = n - 1;
-      showCard(currentIndex);
-    });
-
-    // Difficulty select – υποστηρίζει ranges & μεμονωμένους αριθμούς, π.χ. "1-10,12-14"
-    document.getElementById("rangeSelect").addEventListener("change", e => {
-      const value = e.target.value.trim();
-      if (!value) return;
-
-      const numbers = [];
-
-      value.split(",").forEach(part => {
-        const chunk = part.trim();
-        if (!chunk) return;
-
-        if (chunk.includes("-")) {
-          // range π.χ. "1-10"
-          const [startStr, endStr] = chunk.split("-");
-          const start = Number(startStr);
-          const end = Number(endStr);
-          if (!Number.isFinite(start) || !Number.isFinite(end)) return;
-
-          const from = Math.min(start, end);
-          const to = Math.max(start, end);
-
-          for (let n = from; n <= to; n++) {
-            if (n >= 1 && n <= cards.length) {
-              numbers.push(n);
-            }
-          }
-        } else {
-          // single number π.χ. "11"
-          const n = Number(chunk);
-          if (Number.isFinite(n) && n >= 1 && n <= cards.length) {
-            numbers.push(n);
-          }
-        }
-      });
-
-      if (!numbers.length) return;
-
-      const pick = numbers[Math.floor(Math.random() * numbers.length)];
-      currentIndex = pick - 1;
-      showCard(currentIndex);
-    });
-
-    const customKey = "sharpen_custom_images";
-    let customImages = JSON.parse(localStorage.getItem(customKey)) || [];
-
-    function saveCustomImages() {
-      localStorage.setItem(customKey, JSON.stringify(customImages));
-    }
-
-    document.getElementById("upload").addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files);
-
-      for (const file of files) {
-        const url = URL.createObjectURL(file);
-
-        const newCard = {
-          id: "u_" + Date.now() + "_" + Math.random().toString(36).slice(2),
-          image: url,
-          ease: 2.5,
-          interval: 1,
-          due: Date.now(),
-          correct: 0,
-          wrong: 0,
-          favorite: false
-        };
-
-        cards.push(newCard);
-        customImages.push({ url });
-      }
-
-      saveCustomImages();
-
-      currentIndex = cards.length - 1;
-      showCard(currentIndex);
-    });
-
-    const fenBtn = document.getElementById('openFenBuilderBtn');
-    if (fenBtn) {
-      fenBtn.addEventListener('click', () =>
-        window.open('https://lichess.org/editor', '_blank')
-      );
-    }
-
-    const themeSelect = document.getElementById("themeSelect");
-    themeSelect.addEventListener("change", () => {
-      if (themeSelect.value === "dark") {
-        document.body.classList.add("dark-mode");
-      } else {
-        document.body.classList.remove("dark-mode");
-      }
-    });
-  </script>
+</script>
 
 </body>
-
 </html>
