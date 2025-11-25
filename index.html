@@ -408,10 +408,21 @@ document.getElementById("upload").addEventListener("change", async (e) => {
 const fenBtn=document.getElementById('openFenBuilderBtn');
 if(fenBtn){ fenBtn.addEventListener('click', ()=> window.open('https://lichess.org/editor','_blank')); }
 
+    const themeSelect = document.getElementById("themeSelect");
+
+themeSelect.addEventListener("change", () => {
+  if (themeSelect.value === "dark") {
+    document.body.classList.add("dark-mode");
+  } else {
+    document.body.classList.remove("dark-mode");
+  }
+});
   
   </script>
+  
 </body>
 </html>
+
 
 
 
