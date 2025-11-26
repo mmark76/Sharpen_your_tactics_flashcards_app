@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Tactics Flashcards</title>
+  <title>Chess Flashcards</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -95,7 +95,7 @@
       border-color:#666;
       color:#eee;
     }
-    .dark-mode #favoriteIndicator { color:#666; }
+    .dark-mode #favoriteIndicator { color:#667; }
     .dark-mode #favoriteIndicator.active { color:gold; }
 
     /* MOBILE OPTIMIZATION */
@@ -129,13 +129,13 @@
 
 <body>
 
-  <h1>Tactics Flashcards</h1>
+  <h1>Chess Flashcards</h1>
 
   <div id="statusMsg" style="text-align:center; font-weight:700; margin-bottom:12px; color:green;"></div>
 
   <div style="text-align:center; font-size:0.9em; margin-bottom:15px;">
     <img src="/data/Sharpen cover.png" style="width:55%; max-width:230px; display:block; margin:0 auto 8px;">
-    Source of 15 default tactical positions: from the book <em>Sharpen Your Tactics!</em><br>
+    Source of 15 default tactical positions: <em>Sharpen Your Tactics!</em><br>
     by Grandmasters Anatoly Lein & Boris Archangelsky
   </div>
 
@@ -181,7 +181,7 @@
       <div id="bottom-file">
         <input type="file" id="upload" multiple accept="image/*">
         <div>(Upload only images and screenshots)</div>
-        <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">The images you upload are temporary – lost on refresh<br>Once you click the refresh button, the default (15) images are loaded again.</div>
+        <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">The images you upload are temporary. They are lost on refresh.<br>Once you click the refresh button, the default (15) images are loaded again.</div>
       </div>
 
     </div>
@@ -190,11 +190,11 @@
 
 
 <script>
-let TOTAL = parseInt(prompt("How many images are in your folder? (please name your folder 'problems' and the images problem_16, problem_17, etc ...)\n To use the default just write 15."));
+let TOTAL = parseInt(prompt("How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\n To use the default just write 15."));
 if (!Number.isFinite(TOTAL) || TOTAL < 1) TOTAL = 15;
 
 const statusMsg = document.getElementById("statusMsg");
-statusMsg.textContent = "Default images (15) are loaded";
+statusMsg.textContent = "Default 15 images were loaded...";
 statusMsg.style.color = "green";
 
 const cards = [];
@@ -340,6 +340,7 @@ uploadInput.addEventListener("change", (event) => {
 
 </body>
 </html>
+
 
 
 
