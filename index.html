@@ -214,12 +214,28 @@
   margin: 10px auto;  /* Κέντρο */
 }
 
+    /* BIG OUTER CONTAINER */
+#big-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+/* Dark mode */
+.dark-mode #big-container {
+  background: #1b1b1b;
+  border-color: #555;
+}
+
 </style>
 
 </head>
 
 <body>
-
+<div id="big-container">
   <h1>Chess Flashcards</h1>
 
   <nav class="header-links">
@@ -458,9 +474,10 @@ uploadInput.addEventListener("change", (event) => {
   showCard(currentIndex);
 });
 </script>
-
+</div>
 </body>
 </html>
+
 
 
 
