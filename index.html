@@ -260,8 +260,7 @@
 
 
 <script>
-let TOTAL = parseInt(prompt("How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\n To use the default just write 15."));
-if (!Number.isFinite(TOTAL) || TOTAL < 1) TOTAL = 15;
+let TOTAL = 15; // πάντα φόρτωση των default
 
 const statusMsg = document.getElementById("statusMsg");
 statusMsg.textContent = "Default 15 images were loaded...";
@@ -377,6 +376,26 @@ document.getElementById('openFenBuilderBtn').onclick=()=>{
 
 // ====== UPLOAD HANDLER: προσθήκη uploaded εικόνων + μήνυμα ======
 uploadInput.addEventListener("change", (event) => {
+
+let userTotal = parseInt(prompt(
+  "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
+));
+
+if (Number.isFinite(userTotal) && userTotal > 15) {
+  // πρόσθεσε αυτόματα τα problem_16 ... problem_N
+  for (let i = 16; i <= userTotal; i++) {
+    cards.push({
+      id: cards.length + 1,
+      image: `problems/problem_${i}.png`,
+      favorite: false
+    });
+  }
+
+  statusMsg.style.color = "green";
+  statusMsg.textContent = `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
+}
+	
+uploadInput.addEventListener("change", (event) => {
   const files = Array.from(event.target.files || []).filter(f =>
     f.type.startsWith("image/")
   );
@@ -410,6 +429,7 @@ uploadInput.addEventListener("change", (event) => {
 
 </body>
 </html>
+
 
 
 
