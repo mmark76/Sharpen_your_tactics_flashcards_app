@@ -185,7 +185,8 @@
   <div id="statusMsg" style="text-align:center; font-weight:700; margin-bottom:12px; color:green;"></div>
 
   <div style="text-align:center; font-size:0.9em; margin-bottom:15px;">
-    <img src="/data/Sharpen cover.png" style="width:55%; max-width:230px; display:block; margin:0 auto 8px;">
+    <img src="/data/Sharpen cover.png"
+      style="width:55%; max-width:230px; display:block; margin:0 auto 8px;">
     Source of 15 default tactical positions: <em>Sharpen Your Tactics!</em><br>
     by Grandmasters Anatoly Lein & Boris Archangelsky
   </div>
@@ -232,8 +233,7 @@
       <div id="bottom-file">
         <input type="file" id="upload" multiple accept="image/*">
         <div>(Upload only images and screenshots)</div>
-        <div
-          style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">
+        <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">
           The images you upload are temporary. They are lost on refresh.<br>
           Once you click the refresh button, the default (15) images are loaded again.
         </div>
@@ -325,12 +325,16 @@ function getRandomDifferentIndex() {
 }
 
 document.getElementById("next-btn").onclick = () => {
-  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex + 1) % cards.length;
+  currentIndex = (mode === "random")
+    ? getRandomDifferentIndex()
+    : (currentIndex + 1) % cards.length;
   showCard(currentIndex);
 };
 
 document.getElementById("previous-btn").onclick = () => {
-  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex - 1 + cards.length) % cards.length;
+  currentIndex = (mode === "random")
+    ? getRandomDifferentIndex()
+    : (currentIndex - 1 + cards.length) % cards.length;
   showCard(currentIndex);
 };
 
@@ -366,9 +370,21 @@ document.getElementById("openFenBuilderBtn").onclick = () => {
 };
 
 /* =============================
-   UPLOAD HANDLER (final)
+   UPLOAD HANDLER – OPTION A
+   Prompt → Immediately open dialog
 ============================= */
-uploadInput.addEventListener("change", (event) => {
+
+// Απαραίτητο flag για να μην ανοίγει διπλά
+let skipPromptOnce = false;
+
+// 1) Μόλις πατήσει το κουμπί Upload → prompt ΠΡΙΝ ανοίξει το dialog
+uploadInput.addEventListener("click", (e) => {
+
+  if (skipPromptOnce) {
+    // αυτό το click είναι τεχνικό (από την JS)
+    skipPromptOnce = false;
+    return;
+  }
 
   let userTotal = parseInt(prompt(
     "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
@@ -387,6 +403,19 @@ uploadInput.addEventListener("change", (event) => {
     statusMsg.textContent =
       `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
   }
+
+  // ΜΗΝ ανοίξεις τώρα το dialog - θα το ανοίξουμε σε microtask
+  e.preventDefault();
+
+  // Open file dialog IMMEDIATELY after prompt, without re-triggering prompt
+  Promise.resolve().then(() => {
+    skipPromptOnce = true;
+    uploadInput.click();
+  });
+});
+
+// 2) Μετά την επιλογή αρχείων → φόρτωσε τις uploaded
+uploadInput.addEventListener("change", (event) => {
 
   const files = Array.from(event.target.files || []).filter(f =>
     f.type.startsWith("image/")
