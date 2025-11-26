@@ -172,14 +172,13 @@
 
 </head>
 
-
 <body>
 
   <h1>Chess Flashcards</h1>
 
   <nav class="header-links" style="text-align:center;">
     <a href="https://chessmnemonics.net/index.html">Chess Mnemonic Application and Epic Chess Stories Creator</a><br><br>
-    <a href="https://chessmnemonics.net/flashcards/">Libraries Flashcards Trainer</a><br><br>
+    <a href="httpsessmnemonics.net/flashcards/">Libraries Flashcards Trainer</a><br><br>
   </nav>
 
   <div id="statusMsg" style="text-align:center; font-weight:700; margin-bottom:12px; color:green;"></div>
@@ -213,7 +212,6 @@
     </select>
   </div>
 
-  <!-- FLASHCARD -->
   <div id="card">
 
     <div id="problemCounter"
@@ -243,7 +241,6 @@
 
   </div>
 
-
 <script>
 /* ===============================
    ALWAYS LOAD 15 DEFAULTS
@@ -268,12 +265,10 @@ const favoriteIndicator = document.getElementById("favoriteIndicator");
 const modeBtn = document.getElementById("modeBtn");
 const uploadInput = document.getElementById("upload");
 
-/* === THEME SELECT ELEMENT === */
+/* Theme select */
 const themeSelect = document.getElementById("themeSelect");
 
-/* =============================
-   AUTO-DETECT SYSTEM THEME
-============================= */
+/* AUTO-DETECT SYSTEM THEME */
 if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
   document.body.classList.add("dark-mode");
   themeSelect.value = "dark";
@@ -283,11 +278,8 @@ if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
 
 /* USER MANUAL THEME CHANGE */
 themeSelect.onchange = () => {
-  if (themeSelect.value === "dark") {
-    document.body.classList.add("dark-mode");
-  } else {
-    document.body.classList.remove("dark-mode");
-  }
+  if (themeSelect.value === "dark") document.body.classList.add("dark-mode");
+  else document.body.classList.remove("dark-mode");
 };
 
 let currentIndex = 0;
@@ -309,7 +301,7 @@ function showCard(i) {
 updateModeButton();
 showCard(currentIndex);
 
-/* NAVIGATION */
+/* NAVIGATION BUTTONS */
 modeBtn.onclick = () => {
   mode = (mode === "random") ? "sequential" : "random";
   updateModeButton();
@@ -318,9 +310,8 @@ modeBtn.onclick = () => {
 function getRandomDifferentIndex() {
   if (cards.length <= 1) return currentIndex;
   let newIndex = currentIndex;
-  while (newIndex === currentIndex) {
+  while (newIndex === currentIndex)
     newIndex = Math.floor(Math.random() * cards.length);
-  }
   return newIndex;
 }
 
@@ -351,7 +342,7 @@ document.getElementById("jumpBtn").onclick = () => {
   }
 };
 
-document.getElementById("rangeSelect").onchange = e => {
+document.getElementById("rangeSelect").onchange = (e) => {
   const v = e.target.value;
   if (!v) return;
   const arr = [];
@@ -370,51 +361,39 @@ document.getElementById("openFenBuilderBtn").onclick = () => {
 };
 
 /* =============================
-   UPLOAD HANDLER – OPTION A
-   Prompt → Immediately open dialog
+   UPLOAD HANDLER (Prompt → folder opens)
 ============================= */
 
-// Απαραίτητο flag για να μην ανοίγει διπλά
-let skipPromptOnce = false;
+let firstClick = true;
 
-// 1) Μόλις πατήσει το κουμπί Upload → prompt ΠΡΙΝ ανοίξει το dialog
-uploadInput.addEventListener("click", (e) => {
+uploadInput.addEventListener("click", () => {
 
-  if (skipPromptOnce) {
-    // αυτό το click είναι τεχνικό (από την JS)
-    skipPromptOnce = false;
-    return;
-  }
+  if (firstClick) {
+    firstClick = false;
 
-  let userTotal = parseInt(prompt(
-    "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
-  ));
+    let userTotal = parseInt(prompt(
+      "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
+    ));
 
-  if (Number.isFinite(userTotal) && userTotal > 15) {
-    for (let i = 16; i <= userTotal; i++) {
-      cards.push({
-        id: cards.length + 1,
-        image: `problems/problem_${i}.png`,
-        favorite: false
-      });
+    if (Number.isFinite(userTotal) && userTotal > 15) {
+      for (let i = 16; i <= userTotal; i++) {
+        cards.push({
+          id: cards.length + 1,
+          image: `problems/problem_${i}.png`,
+          favorite: false
+        });
+      }
+
+      statusMsg.style.color = "green";
+      statusMsg.textContent =
+        `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
     }
-
-    statusMsg.style.color = "green";
-    statusMsg.textContent =
-      `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
   }
 
-  // ΜΗΝ ανοίξεις τώρα το dialog - θα το ανοίξουμε σε microtask
-  e.preventDefault();
-
-  // Open file dialog IMMEDIATELY after prompt, without re-triggering prompt
-  Promise.resolve().then(() => {
-    skipPromptOnce = true;
-    uploadInput.click();
-  });
+  // Σημαντικό: το dialog ανοίγει ΚΑΝΟΝΙΚΑ μετά το prompt
 });
 
-// 2) Μετά την επιλογή αρχείων → φόρτωσε τις uploaded
+/* Μετά την επιλογή αρχείων → φορτώνει uploaded */
 uploadInput.addEventListener("change", (event) => {
 
   const files = Array.from(event.target.files || []).filter(f =>
