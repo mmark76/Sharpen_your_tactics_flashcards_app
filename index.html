@@ -375,19 +375,6 @@ uploadInput.addEventListener("click", () => {
       "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
     ));
 
-    if (Number.isFinite(userTotal) && userTotal > 15) {
-      for (let i = 16; i <= userTotal; i++) {
-        cards.push({
-          id: cards.length + 1,
-          image: `problems/problem_${i}.png`,
-          favorite: false
-        });
-      }
-
-      statusMsg.style.color = "green";
-      statusMsg.textContent =
-        `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
-    }
   }
 
   // Σημαντικό: το dialog ανοίγει ΚΑΝΟΝΙΚΑ μετά το prompt
@@ -428,3 +415,4 @@ uploadInput.addEventListener("change", (event) => {
 
 </body>
 </html>
+
