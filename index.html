@@ -88,7 +88,7 @@
       margin-top: 15px;
     }
 
-    #controls > div {
+    #controls>div {
       display: flex;
       justify-content: center;
       gap: 14px;
@@ -152,7 +152,7 @@
         align-items: center;
       }
 
-      #controls > div {
+      #controls>div {
         flex-direction: column;
         width: 100%;
         align-items: center;
@@ -163,11 +163,11 @@
       }
     }
 
-    select, option {
+    select,
+    option {
       text-align: center;
       text-align-last: center;
     }
-
   </style>
 
 </head>
@@ -212,11 +212,11 @@
     </select>
   </div>
 
-
   <!-- FLASHCARD -->
   <div id="card">
 
-    <div id="problemCounter" style="margin-bottom:8px; font-weight:700; font-size:1.1em; color:#0a7c24;"></div>
+    <div id="problemCounter"
+      style="margin-bottom:8px; font-weight:700; font-size:1.1em; color:#0a7c24;"></div>
 
     <img id="boardImg">
 
@@ -232,7 +232,11 @@
       <div id="bottom-file">
         <input type="file" id="upload" multiple accept="image/*">
         <div>(Upload only images and screenshots)</div>
-        <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">The images you upload are temporary. They are lost on refresh.<br>Once you click the refresh button, the default (15) images are loaded again.</div>
+        <div
+          style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">
+          The images you upload are temporary. They are lost on refresh.<br>
+          Once you click the refresh button, the default (15) images are loaded again.
+        </div>
       </div>
 
     </div>
@@ -241,9 +245,9 @@
 
 
 <script>
-/* ============================
+/* ===============================
    ALWAYS LOAD 15 DEFAULTS
-============================ */
+================================ */
 let TOTAL = 15;
 
 const statusMsg = document.getElementById("statusMsg");
@@ -255,7 +259,7 @@ for (let i = 1; i <= TOTAL; i++) {
   cards.push({
     id: i,
     image: `problems/problem_${i}.png`,
-    favorite:false
+    favorite: false
   });
 }
 
@@ -264,18 +268,40 @@ const favoriteIndicator = document.getElementById("favoriteIndicator");
 const modeBtn = document.getElementById("modeBtn");
 const uploadInput = document.getElementById("upload");
 
+/* === THEME SELECT ELEMENT === */
+const themeSelect = document.getElementById("themeSelect");
+
+/* =============================
+   AUTO-DETECT SYSTEM THEME
+============================= */
+if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  document.body.classList.add("dark-mode");
+  themeSelect.value = "dark";
+} else {
+  themeSelect.value = "light";
+}
+
+/* USER MANUAL THEME CHANGE */
+themeSelect.onchange = () => {
+  if (themeSelect.value === "dark") {
+    document.body.classList.add("dark-mode");
+  } else {
+    document.body.classList.remove("dark-mode");
+  }
+};
+
 let currentIndex = 0;
 let mode = "random";
 
-function updateModeButton(){
+function updateModeButton() {
   modeBtn.textContent = (mode === "random") ? "Mode: Random" : "Mode: Sequential";
 }
 
-function showCard(i){
+function showCard(i) {
   const c = cards[i];
   boardImg.src = c.image;
   document.getElementById("problemCounter").textContent =
-    "Problem " + (i+1) + " of " + cards.length;
+    "Problem " + (i + 1) + " of " + cards.length;
   favoriteIndicator.textContent = c.favorite ? "★" : "☆";
   favoriteIndicator.classList.toggle("active", c.favorite);
 }
@@ -289,7 +315,7 @@ modeBtn.onclick = () => {
   updateModeButton();
 };
 
-function getRandomDifferentIndex(){
+function getRandomDifferentIndex() {
   if (cards.length <= 1) return currentIndex;
   let newIndex = currentIndex;
   while (newIndex === currentIndex) {
@@ -298,54 +324,49 @@ function getRandomDifferentIndex(){
   return newIndex;
 }
 
-document.getElementById("next-btn").onclick = ()=>{
-  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex+1)%cards.length;
+document.getElementById("next-btn").onclick = () => {
+  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex + 1) % cards.length;
   showCard(currentIndex);
 };
 
-document.getElementById("previous-btn").onclick = ()=>{
-  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex-1+cards.length)%cards.length;
+document.getElementById("previous-btn").onclick = () => {
+  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex - 1 + cards.length) % cards.length;
   showCard(currentIndex);
 };
 
-document.getElementById("favorite-btn").onclick = ()=>{
+document.getElementById("favorite-btn").onclick = () => {
   cards[currentIndex].favorite = !cards[currentIndex].favorite;
   showCard(currentIndex);
 };
 
-document.getElementById("jumpBtn").onclick = ()=>{
-  const v = parseInt(prompt("Enter number (1-"+cards.length+")"));
-  if(v>=1 && v<=cards.length){
-    currentIndex = v-1;
+document.getElementById("jumpBtn").onclick = () => {
+  const v = parseInt(prompt("Enter number (1-" + cards.length + ")"));
+  if (v >= 1 && v <= cards.length) {
+    currentIndex = v - 1;
     showCard(currentIndex);
   }
 };
 
 document.getElementById("rangeSelect").onchange = e => {
   const v = e.target.value;
-  if(!v) return;
-  const arr=[];
-  v.split(",").forEach(s=>{
-    if(s.includes("-")){
-      let [a,b] = s.split("-").map(Number);
-      for(let x=a; x<=b; x++) arr.push(x);
+  if (!v) return;
+  const arr = [];
+  v.split(",").forEach(s => {
+    if (s.includes("-")) {
+      let [a, b] = s.split("-").map(Number);
+      for (let x = a; x <= b; x++) arr.push(x);
     } else arr.push(Number(s));
   });
-  currentIndex = arr[Math.floor(Math.random()*arr.length)]-1;
+  currentIndex = arr[Math.floor(Math.random() * arr.length)] - 1;
   showCard(currentIndex);
 };
 
-document.getElementById("themeSelect").onchange = ()=>{
-  if(themeSelect.value==="dark") document.body.classList.add("dark-mode");
-  else document.body.classList.remove("dark-mode");
-};
-
-document.getElementById("openFenBuilderBtn").onclick=()=>{
-  window.open("https://lichess.org/editor","_blank");
+document.getElementById("openFenBuilderBtn").onclick = () => {
+  window.open("https://lichess.org/editor", "_blank");
 };
 
 /* =============================
-   UPLOAD HANDLER (CORRECT)
+   UPLOAD HANDLER (final)
 ============================= */
 uploadInput.addEventListener("change", (event) => {
 
