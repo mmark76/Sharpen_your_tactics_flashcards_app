@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-
     body {
       font-family: Arial, sans-serif;
       max-width: 900px;
@@ -15,29 +14,64 @@
       padding: 16px;
     }
 
-    h1 { text-align:center; }
+    h1 {
+      text-align: center;
+    }
 
+    /* ==========================
+       GLOBAL BUTTON STYLE
+    =========================== */
+    button,
+    select,
+    input[type="file"] {
+      padding: 10px 24px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(180deg, #ffffff 0%, #e6e6e6 100%);
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 600;
+      transition: 0.2s;
+      border: 1px solid #ccc;
+    }
+
+    button:hover,
+    select:hover,
+    input[type="file"]:hover {
+      background: linear-gradient(180deg, #fdfdfd 0%, #dcdcdc 100%);
+      transform: translateY(-1px);
+    }
+
+    .dark-mode button,
+    .dark-mode select,
+    .dark-mode input[type="file"] {
+      background: #2b2b2b;
+      border: 1px solid #555;
+      color: #eee;
+    }
+
+    /* TOP BUTTONS CENTER */
     #top-center-buttons {
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      margin-bottom:12px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
     #topBar {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
-      align-items:center;
-      margin-bottom:12px;
-      font-size:0.9em;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
+    /* FLASHCARD CARD */
     #card {
       text-align: center;
       border: 1px solid #ddd;
-      padding: 15px;
+      padding: 18px;
       border-radius: 6px;
       max-width: 500px;
       margin: 0 auto;
@@ -46,146 +80,93 @@
     #boardImg {
       width: 100%;
       max-width: 420px;
-      margin-top:10px;
-      border:1px solid #ccc;
+      margin-top: 10px;
+      border: 1px solid #ccc;
     }
 
-    button,
-    select,
-    input[type="file"] {
-      padding: 8px 20px;
-      border-radius: 999px;
-      border: 1px solid #d0d7de;
-      background: linear-gradient(to bottom, #ffffff, #f3f4f6);
-      cursor: pointer;
-      font-size: 0.9em;
-      font-weight:500;
+    #controls {
+      margin-top: 15px;
     }
-
-    #controls { margin-top:15px; }
 
     #controls > div {
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-      margin-bottom:10px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
     #favoriteIndicator {
-      font-size:1.4em;
-      margin-left:5px;
-      color:#999;
+      font-size: 1.4em;
+      margin-left: 5px;
+      color: #999;
     }
 
     #favoriteIndicator.active {
-      color:gold;
+      color: gold;
     }
-
-    #bottom-file div { font-size:0.78em; opacity:0.8; }
 
     /* DARK MODE */
-    .dark-mode { background:#141414; color:#eee; }
-    .dark-mode #card { border-color:#444; }
-    .dark-mode #boardImg { border-color:#555; }
-    .dark-mode button,
-    .dark-mode select,
-    .dark-mode input[type="file"] {
-      background:#2a2a2a;
-      border-color:#666;
-      color:#eee;
+    .dark-mode {
+      background: #141414;
+      color: #eee;
     }
-    .dark-mode #favoriteIndicator { color:#667; }
-    .dark-mode #favoriteIndicator.active { color:gold; }
 
-    /* MOBILE OPTIMIZATION */
-    @media(max-width:600px){
+    .dark-mode #card {
+      border-color: #444;
+    }
 
-      #controls > div {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:10px;
-        justify-items:center;
-      }
+    .dark-mode #boardImg {
+      border-color: #555;
+    }
+
+    .dark-mode #favoriteIndicator {
+      color: #667;
+    }
+
+    .dark-mode #favoriteIndicator.active {
+      color: gold;
+    }
+
+    /* MOBILE LAYOUT */
+    @media(max-width:600px) {
 
       button,
       select,
       input[type="file"] {
-        width:90%;
-        max-width:220px;
-        padding:6px 14px;
-        font-size:0.82em;
+        width: 90%;
+        max-width: 260px;
+        padding: 10px 12px;
+        font-size: 0.85em;
       }
 
       #top-center-buttons {
-        flex-direction:column;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      #topBar {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+      }
+
+      #controls > div {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+      }
+
+      #bottom-file input[type="file"] {
+        width: 90%;
       }
     }
 
-    @media(max-width:600px){
-
-  /* Όλα τα κεντρικά κουμπιά σε καθαρή grid διάταξη */
-  #top-center-buttons {
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-
-  #top-center-buttons button,
-  #top-center-buttons select {
-    width: 90%;
-    max-width: 260px;
-  }
-
-  /* Το topBar επίσης σε στήλη */
-  #topBar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-
-  #topBar button,
-  #topBar select {
-    width: 90%;
-    max-width: 260px;
-  }
-
-  /* Τα κουμπιά Previous – Next – Favorite σε τέλεια στοίχιση */
-  #controls > div {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-    gap: 10px;
-  }
-
-  #controls button {
-    width: 90%;
-    max-width: 260px;
-  }
-
-  /* Το upload επίσης κεντραρισμένο */
-  #bottom-file {
-    width: 100%;
-    text-align: center;
-  }
-
-  #bottom-file input[type="file"] {
-    width: 90%;
-    max-width: 260px;
-  }
-}
-
-    select {
-  text-align: center;
-  text-align-last: center;
-}
-
-    option {
-  text-align: center;
-}
+    select, option {
+      text-align: center;
+      text-align-last: center;
+    }
 
   </style>
 
@@ -195,12 +176,12 @@
 <body>
 
   <h1>Chess Flashcards</h1>
-  
-  <nav class="header-links">
-	  <a href="https://chessmnemonics.net/index.html">Chess Mnemonic Application and Epic Chess Stories Creator</a><br><br>
-	  <a href="https://chessmnemonics.net/flashcards/">Libraries Flashcards Trainer</a><br><br>
+
+  <nav class="header-links" style="text-align:center;">
+    <a href="https://chessmnemonics.net/index.html">Chess Mnemonic Application and Epic Chess Stories Creator</a><br><br>
+    <a href="https://chessmnemonics.net/flashcards/">Libraries Flashcards Trainer</a><br><br>
   </nav>
-  
+
   <div id="statusMsg" style="text-align:center; font-weight:700; margin-bottom:12px; color:green;"></div>
 
   <div style="text-align:center; font-size:0.9em; margin-bottom:15px;">
@@ -209,7 +190,7 @@
     by Grandmasters Anatoly Lein & Boris Archangelsky
   </div>
 
-
+  <!-- TOP BUTTONS -->
   <div id="top-center-buttons">
     <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
 
@@ -219,7 +200,7 @@
     </select>
   </div>
 
-
+  <!-- MODE / DIFFICULTY -->
   <div id="topBar">
     <button id="modeBtn">Mode: Random</button>
     <button id="jumpBtn">Go to number #</button>
@@ -232,7 +213,7 @@
   </div>
 
 
-
+  <!-- FLASHCARD -->
   <div id="card">
 
     <div id="problemCounter" style="margin-bottom:8px; font-weight:700; font-size:1.1em; color:#0a7c24;"></div>
@@ -260,7 +241,10 @@
 
 
 <script>
-let TOTAL = 15; // πάντα φόρτωση των default
+/* ============================
+   ALWAYS LOAD 15 DEFAULTS
+============================ */
+let TOTAL = 15;
 
 const statusMsg = document.getElementById("statusMsg");
 statusMsg.textContent = "Default 15 images were loaded...";
@@ -281,22 +265,17 @@ const modeBtn = document.getElementById("modeBtn");
 const uploadInput = document.getElementById("upload");
 
 let currentIndex = 0;
-let mode = "random"; // "random" ή "sequential"
+let mode = "random";
 
-// ενημέρωση κειμένου κουμπιού mode
 function updateModeButton(){
-  modeBtn.textContent = (mode === "random")
-    ? "Mode: Random"
-    : "Mode: Sequential";
+  modeBtn.textContent = (mode === "random") ? "Mode: Random" : "Mode: Sequential";
 }
 
 function showCard(i){
   const c = cards[i];
   boardImg.src = c.image;
-
   document.getElementById("problemCounter").textContent =
     "Problem " + (i+1) + " of " + cards.length;
-
   favoriteIndicator.textContent = c.favorite ? "★" : "☆";
   favoriteIndicator.classList.toggle("active", c.favorite);
 }
@@ -304,13 +283,12 @@ function showCard(i){
 updateModeButton();
 showCard(currentIndex);
 
-// toggle mode Random/Sequential
+/* NAVIGATION */
 modeBtn.onclick = () => {
   mode = (mode === "random") ? "sequential" : "random";
   updateModeButton();
 };
 
-// helper για τυχαίο index διαφορετικό από το current
 function getRandomDifferentIndex(){
   if (cards.length <= 1) return currentIndex;
   let newIndex = currentIndex;
@@ -321,20 +299,12 @@ function getRandomDifferentIndex(){
 }
 
 document.getElementById("next-btn").onclick = ()=>{
-  if (mode === "random") {
-    currentIndex = getRandomDifferentIndex();
-  } else {
-    currentIndex = (currentIndex+1)%cards.length;
-  }
+  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex+1)%cards.length;
   showCard(currentIndex);
 };
 
 document.getElementById("previous-btn").onclick = ()=>{
-  if (mode === "random") {
-    currentIndex = getRandomDifferentIndex();
-  } else {
-    currentIndex = (currentIndex-1+cards.length)%cards.length;
-  }
+  currentIndex = (mode === "random") ? getRandomDifferentIndex() : (currentIndex-1+cards.length)%cards.length;
   showCard(currentIndex);
 };
 
@@ -357,8 +327,8 @@ document.getElementById("rangeSelect").onchange = e => {
   const arr=[];
   v.split(",").forEach(s=>{
     if(s.includes("-")){
-      let[a,b]=s.split("-").map(Number);
-      for(let x=a;x<=b;x++) arr.push(x);
+      let [a,b] = s.split("-").map(Number);
+      for(let x=a; x<=b; x++) arr.push(x);
     } else arr.push(Number(s));
   });
   currentIndex = arr[Math.floor(Math.random()*arr.length)]-1;
@@ -370,32 +340,33 @@ document.getElementById("themeSelect").onchange = ()=>{
   else document.body.classList.remove("dark-mode");
 };
 
-document.getElementById('openFenBuilderBtn').onclick=()=>{
+document.getElementById("openFenBuilderBtn").onclick=()=>{
   window.open("https://lichess.org/editor","_blank");
 };
 
-// ====== UPLOAD HANDLER: προσθήκη uploaded εικόνων + μήνυμα ======
+/* =============================
+   UPLOAD HANDLER (CORRECT)
+============================= */
 uploadInput.addEventListener("change", (event) => {
 
-let userTotal = parseInt(prompt(
-  "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
-));
+  let userTotal = parseInt(prompt(
+    "How many images are in your folder? Please name your folder 'problems' and the images problem_16, problem_17, etc ...\nTo use the default just write 15."
+  ));
 
-if (Number.isFinite(userTotal) && userTotal > 15) {
-  // πρόσθεσε αυτόματα τα problem_16 ... problem_N
-  for (let i = 16; i <= userTotal; i++) {
-    cards.push({
-      id: cards.length + 1,
-      image: `problems/problem_${i}.png`,
-      favorite: false
-    });
+  if (Number.isFinite(userTotal) && userTotal > 15) {
+    for (let i = 16; i <= userTotal; i++) {
+      cards.push({
+        id: cards.length + 1,
+        image: `problems/problem_${i}.png`,
+        favorite: false
+      });
+    }
+
+    statusMsg.style.color = "green";
+    statusMsg.textContent =
+      `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
   }
 
-  statusMsg.style.color = "green";
-  statusMsg.textContent = `Loaded ${userTotal} images (default 15 + ${userTotal - 15} extra).`;
-}
-	
-uploadInput.addEventListener("change", (event) => {
   const files = Array.from(event.target.files || []).filter(f =>
     f.type.startsWith("image/")
   );
@@ -421,7 +392,6 @@ uploadInput.addEventListener("change", (event) => {
       ? "1 uploaded image added after the default problems."
       : files.length + " uploaded images added after the default problems.";
 
-  // Πήγαινε στην πρώτη από τις νέες εικόνες
   currentIndex = cards.length - files.length;
   showCard(currentIndex);
 });
@@ -429,19 +399,3 @@ uploadInput.addEventListener("change", (event) => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
