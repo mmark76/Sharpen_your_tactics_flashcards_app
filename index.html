@@ -122,6 +122,62 @@
       }
     }
 
+    @media(max-width:600px){
+
+  /* Όλα τα κεντρικά κουμπιά σε καθαρή grid διάταξη */
+  #top-center-buttons {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  #top-center-buttons button,
+  #top-center-buttons select {
+    width: 90%;
+    max-width: 260px;
+  }
+
+  /* Το topBar επίσης σε στήλη */
+  #topBar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  #topBar button,
+  #topBar select {
+    width: 90%;
+    max-width: 260px;
+  }
+
+  /* Τα κουμπιά Previous – Next – Favorite σε τέλεια στοίχιση */
+  #controls > div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #controls button {
+    width: 90%;
+    max-width: 260px;
+  }
+
+  /* Το upload επίσης κεντραρισμένο */
+  #bottom-file {
+    width: 100%;
+    text-align: center;
+  }
+
+  #bottom-file input[type="file"] {
+    width: 90%;
+    max-width: 260px;
+  }
+}
+
   </style>
 
 </head>
@@ -340,6 +396,7 @@ uploadInput.addEventListener("change", (event) => {
 
 </body>
 </html>
+
 
 
 
