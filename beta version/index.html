@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Chess Flashcards</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tesseract.js για OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    /* ==========================
+       GLOBAL BUTTON STYLE
+    =========================== */
+    button,
+    select,
+    input[type="file"] {
+      padding: 10px 24px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(180deg, #ffffff 0%, #e6e6e6 100%);
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 600;
+      transition: 0.2s;
+      border: 1px solid #ccc;
+    }
+
+    button:hover,
+    select:hover,
+    input[type="file"]:hover {
+      background: linear-gradient(180deg, #fdfdfd 0%, #dcdcdc 100%);
+      transform: translateY(-1px);
+    }
+
+    .dark-mode button,
+    .dark-mode select,
+    .dark-mode input[type="file"] {
+      background: #2b2b2b;
+      border: 1px solid #555;
+      color: #eee;
+    }
+
+    /* TOP BUTTONS CENTER */
+    #top-center-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    #topBar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    /* FLASHCARD CARD */
+    #card {
+      text-align: center;
+      border: 1px solid #ddd;
+      padding: 18px;
+      border-radius: 6px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    #boardImg {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+
+    #controls {
+      margin-top: 15px;
+    }
+
+    #controls>div {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    #favoriteIndicator {
+      font-size: 1.4em;
+      margin-left: 5px;
+      color: #999;
+    }
+
+    #favoriteIndicator.active {
+      color: gold;
+    }
+
+    /* OCR RESULT */
+    #ocrResult {
+      margin-bottom: 6px;
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #004a99;
+    }
+
+    /* DARK MODE */
+    .dark-mode {
+      background: #141414;
+      color: #eee;
+    }
+
+    .dark-mode #card {
+      border-color: #444;
+    }
+
+    .dark-mode #boardImg {
+      border-color: #555;
+    }
+
+    .dark-mode #favoriteIndicator {
+      color: #667;
+    }
+
+    .dark-mode #favoriteIndicator.active {
+      color: gold;
+    }
+
+    .dark-mode #ocrResult {
+      color: #aad4ff;
+    }
+
+    /* MOBILE LAYOUT */
+    @media(max-width:600px) {
+
+      button,
+      select,
+      input[type="file"] {
+        width: 90%;
+        max-width: 260px;
+        padding: 10px 12px;
+        font-size: 0.85em;
+      }
+
+      #top-center-buttons {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      #topBar {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+      }
+
+      #controls>div {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+      }
+
+      #bottom-file input[type="file"] {
+        width: 90%;
+      }
+    }
+
+    select,
+    option {
+      text-align: center;
+      text-align-last: center;
+    }
+
+    /* ==========================
+       HEADER NAVIGATION LINKS
+    ========================== */
+    .header-links {
+      text-align: center;
+      margin: 20px 0 30px 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .header-links a {
+      display: block;
+      max-width: 420px;
+      padding: 10px 22px;
+      margin: 10px auto;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: #333;
+      background: #f0f0f0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: 0.25s;
+    }
+
+    .header-links a:hover {
+      background: #e4e4e4;
+      transform: translateY(-2px);
+    }
+
+    /* DARK MODE SUPPORT */
+    .dark-mode .header-links a {
+      background: #2b2b2b;
+      color: #eee;
+      border: 1px solid #555;
+    }
+
+    .dark-mode .header-links a:hover {
+      background: #3a3a3a;
+    }
+
+    /* BIG OUTER CONTAINER */
+    #big-container {
+      max-width: 470px;
+      margin: 0 auto;
+      padding: 20px 30px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    /* Dark mode */
+    .dark-mode #big-container {
+      background: #1b1b1b;
+      border-color: #555;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="big-container">
+    <h1>Chess Flashcards</h1>
+
+    <nav class="header-links">
+      <a href="https://chessmnemonics.net/index.html">Chess Mnemonic Application and Epic Chess Stories Creator</a>
+      <a href="https://chessmnemonics.net/flashcards/">Libraries Flashcards Trainer</a>
+    </nav>
+
+    <div id="statusMsg" style="text-align:center; font-weight:700; margin-bottom:12px; color:green;"></div>
+
+    <div style="text-align:center; font-size:0.9em; margin-bottom:15px;">
+      <img src="/data/Sharpen Your Tactics Cover.png"
+        style="width:55%; max-width:230px; display:block; margin:0 auto 8px;">
+      Source of 15 default tactical positions: <em>Sharpen Your Tactics!</em><br>
+      by Grandmasters Anatoly Lein & Boris Archangelsky
+    </div>
+
+    <!-- TOP BUTTONS -->
+    <div id="top-center-buttons">
+      <button id="openFenBuilderBtn">Use lichess.org FEN Builder</button>
+
+      <select id="themeSelect">
+        <option value="light">Light background</option>
+        <option value="dark">Dark background</option>
+      </select>
+    </div>
+
+    <!-- MODE / DIFFICULTY -->
+    <div id="topBar">
+      <button id="modeBtn">Mode: Sequential</button>
+      <button id="jumpBtn">Go to number #</button>
+
+      <select id="rangeSelect">
+        <option value="">Choose Difficulty</option>
+        <option value="1">* (Very Easy)</option>
+        <option value="2">** (Easy)</option>
+        <option value="3">*** (Medium)</option>
+        <option value="4">**** (Hard)</option>
+      </select>
+    </div>
+
+    <div id="card">
+
+      <div id="problemCounter"
+        style="margin-bottom:8px; font-weight:700; font-size:1.1em; color:#0a7c24;"></div>
+
+      <div id="ocrResult"></div>
+
+      <img id="boardImg" alt="Chess position diagram">
+
+      <div id="controls">
+
+        <div>
+          <button id="previous-btn">← Previous</button>
+          <button id="next-btn">Next →</button>
+          <button id="favorite-btn">★ Favorite</button>
+          <span id="favoriteIndicator">☆</span>
+        </div>
+
+        <div id="bottom-file">
+          <input type="file" id="upload" multiple accept="image/*">
+          <div>(Upload only images and screenshots)</div>
+          <div style="font-size:0.8em; font-weight:700; color:green; margin-top:4px;">
+            The images you upload are temporary. They are lost on refresh.<br>
+            Once you click the refresh button, the default (15) images are loaded again.
+          </div>
+          <div style="font-size:0.8em; font-weight:700; color:#aa6600; margin-top:4px;">
+            If you upload many images, the OCR analysis for all of them may take some time.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <script>
+      /* ===============================
+         ALWAYS LOAD 15 DEFAULTS
+      ================================ */
+      let TOTAL = 15;
+
+      const statusMsg = document.getElementById("statusMsg");
+      statusMsg.textContent = "Default 15 images were loaded...";
+      statusMsg.style.color = "green";
+
+      const cards = [];
+      for (let i = 1; i <= TOTAL; i++) {
+        cards.push({
+          id: i,
+          image: `problems/problem_${i}.png`,
+          favorite: false,
+          difficulty: null,
+          problemNumber: null
+        });
+      }
+
+      const boardImg = document.getElementById("boardImg");
+      const favoriteIndicator = document.getElementById("favoriteIndicator");
+      const modeBtn = document.getElementById("modeBtn");
+      const uploadInput = document.getElementById("upload");
+      const themeSelect = document.getElementById("themeSelect");
+      const ocrResult = document.getElementById("ocrResult");
+      const rangeSelect = document.getElementById("rangeSelect");
+      const problemCounter = document.getElementById("problemCounter");
+      const openFenBuilderBtn = document.getElementById("openFenBuilderBtn");
+
+      /* AUTO-DETECT SYSTEM THEME */
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.body.classList.add("dark-mode");
+        themeSelect.value = "dark";
+      } else {
+        themeSelect.value = "light";
+      }
+
+      /* USER MANUAL THEME CHANGE */
+      themeSelect.onchange = () => {
+        if (themeSelect.value === "dark") document.body.classList.add("dark-mode");
+        else document.body.classList.remove("dark-mode");
+      };
+
+      let currentIndex = 0;
+      let mode = "sequential"; // ξεκινάει σε Sequential
+      let lastRequestedSrc = null; // για OCR race conditions
+      let defaultsRemoved = false; // για το upload (να σβήσουμε τα default μόνο μια φορά)
+      let isBatchAnalyzing = false;
+
+      function updateModeButton() {
+        modeBtn.textContent = (mode === "random") ? "Mode: Random" : "Mode: Sequential";
+      }
+
+      // Εκτίμηση stars από το κείμενο: βρες το μεγαλύτερο "run" ιδίων μη-αλφαριθμητικών συμβόλων
+      function estimateStarsFromText(text) {
+        const cleaned = text.replace(/\s+/g, '');
+        let maxRun = 0;
+
+        for (let i = 0; i < cleaned.length;) {
+          const ch = cleaned[i];
+
+          // αγνοούμε γράμματα/νούμερα
+          if (/[A-Za-z0-9]/.test(ch)) {
+            i++;
+            continue;
+          }
+
+          let j = i + 1;
+          while (j < cleaned.length && cleaned[j] === ch) {
+            j++;
+          }
+
+          const runLen = j - i;
+          if (runLen > maxRun) {
+            maxRun = runLen;
+          }
+
+          i = j;
+        }
+
+        if (maxRun === 0) return 0;
+        return Math.min(maxRun, 4); // clamp σε max 4
+      }
+
+      // OCR: μόνο stars (difficulty) & problemNumber
+      async function analyzeImage(src, cardIndex) {
+        if (typeof Tesseract === "undefined" || !Tesseract.recognize) {
+          if (cardIndex === currentIndex) {
+            ocrResult.textContent = "";
+          }
+          return;
+        }
+
+        lastRequestedSrc = src;
+        if (cardIndex === currentIndex) {
+          ocrResult.textContent = "Analyzing problem info (2 corners)...";
+        }
+
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = src;
+
+          img.onload = async () => {
+            if (lastRequestedSrc !== src) {
+              resolve();
+              return;
+            }
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const w = img.width;
+            const h = img.height;
+
+            const cornerW = Math.floor(w * 0.30);
+            const cornerH = Math.floor(h * 0.30);
+
+            const regions = [
+              { name: "top-left", sx: 0, sy: 0 },
+              { name: "top-right", sx: w - cornerW, sy: 0 }
+            ];
+
+            let combinedText = "";
+
+            try {
+              for (const r of regions) {
+                canvas.width = cornerW;
+                canvas.height = cornerH;
+                ctx.clearRect(0, 0, cornerW, cornerH);
+                ctx.drawImage(
+                  img,
+                  r.sx, r.sy, cornerW, cornerH,
+                  0, 0, cornerW, cornerH
+                );
+
+                const dataUrl = canvas.toDataURL("image/png");
+                const res = await Tesseract.recognize(dataUrl, "eng");
+                const t = (res.data && res.data.text) ? res.data.text : "";
+                combinedText += " [" + r.name + "] " + t + " ";
+
+                if (lastRequestedSrc !== src) {
+                  resolve();
+                  return;
+                }
+              }
+
+              if (lastRequestedSrc !== src) {
+                resolve();
+                return;
+              }
+
+              const text = combinedText.replace(/\s+/g, " ");
+              console.log("OCR 2-corners text:", text);
+
+              // 1) Difficulty από γενικό run συμβόλων
+              let stars = estimateStarsFromText(text);
+
+              // 2) Problem number (πάνω-αριστερά)
+              let problemNumber = null;
+              const tlMatch = text.match(/top-left\]\s*([0-9]{1,4})/i);
+              if (tlMatch) problemNumber = tlMatch[1];
+
+              // Αποθήκευση στο αντίστοιχο card
+              if (cards[cardIndex]) {
+                cards[cardIndex].difficulty = stars;
+                cards[cardIndex].problemNumber = problemNumber;
+              }
+
+              if (cardIndex === currentIndex) {
+                const parts = [];
+                if (problemNumber) parts.push("Problem #" + problemNumber);
+
+                if (stars > 0) {
+                  const starLabel = stars === 1 ? "star" : "stars";
+                  parts.push("Difficulty: " + stars + " " + starLabel);
+                }
+
+                ocrResult.textContent = parts.join(" • ");
+              }
+
+            } catch (err) {
+              console.error(err);
+              if (cardIndex === currentIndex) {
+                ocrResult.textContent = "Could not analyze problem info.";
+              }
+            }
+            resolve();
+          };
+
+          img.onerror = () => {
+            if (cardIndex === currentIndex) {
+              ocrResult.textContent = "Could not load image for analysis.";
+            }
+            resolve();
+          };
+        });
+      }
+
+      async function runBatchOCRForAllUnanalyzed() {
+        const toAnalyze = cards.filter(c => c.difficulty === null).length;
+        if (!toAnalyze || isBatchAnalyzing) return;
+
+        isBatchAnalyzing = true;
+        statusMsg.style.color = "orange";
+        statusMsg.textContent =
+          "Analyzing " + toAnalyze + " image(s). Please wait until the analysis of all images is completed.";
+
+        for (let i = 0; i < cards.length; i++) {
+          if (cards[i].difficulty === null) {
+            await analyzeImage(cards[i].image, i);
+          }
+        }
+
+        statusMsg.style.color = "green";
+        statusMsg.textContent =
+          "Analysis completed for " + toAnalyze + " image(s). You can now use the difficulty filter.";
+
+        isBatchAnalyzing = false;
+      }
+
+      function showCard(i) {
+        const c = cards[i];
+        boardImg.src = c.image;
+        problemCounter.textContent =
+          "Problem " + (i + 1) + " of " + cards.length;
+        favoriteIndicator.textContent = c.favorite ? "★" : "☆";
+        favoriteIndicator.classList.toggle("active", c.favorite);
+
+        if (c.image) {
+          analyzeImage(c.image, i);
+        } else {
+          ocrResult.textContent = "";
+        }
+      }
+
+      updateModeButton();
+      showCard(currentIndex);
+
+      /* NAVIGATION BUTTONS */
+      modeBtn.onclick = () => {
+        mode = (mode === "random") ? "sequential" : "random";
+        updateModeButton();
+      };
+
+      function getRandomDifferentIndex() {
+        if (cards.length <= 1) return currentIndex;
+        let newIndex = currentIndex;
+        while (newIndex === currentIndex)
+          newIndex = Math.floor(Math.random() * cards.length);
+        return newIndex;
+      }
+
+      document.getElementById("next-btn").onclick = () => {
+        currentIndex = (mode === "random")
+          ? getRandomDifferentIndex()
+          : (currentIndex + 1) % cards.length;
+        showCard(currentIndex);
+      };
+
+      document.getElementById("previous-btn").onclick = () => {
+        currentIndex = (mode === "random")
+          ? getRandomDifferentIndex()
+          : (currentIndex - 1 + cards.length) % cards.length;
+        showCard(currentIndex);
+      };
+
+      document.getElementById("favorite-btn").onclick = () => {
+        cards[currentIndex].favorite = !cards[currentIndex].favorite;
+        showCard(currentIndex);
+      };
+
+      document.getElementById("jumpBtn").onclick = () => {
+        const v = parseInt(prompt("Enter number (1-" + cards.length + ")"));
+        if (v >= 1 && v <= cards.length) {
+          currentIndex = v - 1;
+          showCard(currentIndex);
+        }
+      };
+
+      // Dropdown: φιλτράρει με βάση τα stars από OCR
+      rangeSelect.onchange = (e) => {
+        const v = parseInt(e.target.value, 10);
+        if (!v) return;
+
+        const matchingIndices = cards
+          .map((c, idx) => ({ c, idx }))
+          .filter(obj => obj.c.difficulty === v)
+          .map(obj => obj.idx);
+
+        if (matchingIndices.length === 0) {
+          statusMsg.style.color = "red";
+          statusMsg.textContent =
+            "No problems with that difficulty yet (OCR may still be running or symbols not detected).";
+          return;
+        }
+
+        statusMsg.style.color = "green";
+        statusMsg.textContent =
+          "Jumped to a problem with difficulty " + v + " star(s).";
+
+        currentIndex = matchingIndices[Math.floor(Math.random() * matchingIndices.length)];
+        showCard(currentIndex);
+      };
+
+      openFenBuilderBtn.onclick = () => {
+        window.open("https://lichess.org/editor", "_blank");
+      };
+
+      /* =============================
+         UPLOAD HANDLER
+      ============================= */
+
+      // Μετά την επιλογή αρχείων:
+      //  - στο πρώτο upload σβήνουμε τα 15 default
+      //  - στα επόμενα, οι εικόνες συσσωρεύονται
+      uploadInput.addEventListener("change", (event) => {
+
+        const allFiles = Array.from(event.target.files || []).filter(f =>
+          f.type.startsWith("image/")
+        );
+
+        if (!allFiles.length) {
+          statusMsg.textContent = "No image files selected.";
+          statusMsg.style.color = "red";
+          return;
+        }
+
+        const files = allFiles;
+
+        // ΜΟΝΟ στο πρώτο upload σβήνουμε τα 15 default
+        if (!defaultsRemoved) {
+          cards.length = 0;      // καθαρίζει τις default
+          defaultsRemoved = true;
+        }
+
+        const startIndex = cards.length;
+
+        // Προσθέτουμε τις νέες εικόνες στο τέλος
+        files.forEach((file) => {
+          const url = URL.createObjectURL(file);
+          cards.push({
+            id: cards.length + 1,
+            image: url,
+            favorite: false,
+            difficulty: null,
+            problemNumber: null
+          });
+        });
+
+        const added = files.length;
+        const total = cards.length;
+
+        statusMsg.style.color = "orange";
+        statusMsg.textContent =
+          added === 1
+            ? "1 uploaded image added (total " + total + "). Starting OCR for all images..."
+            : added + " uploaded images added (total " + total + "). Starting OCR for all images...";
+
+        // Πηδάμε στην πρώτη από τις νέες εικόνες
+        currentIndex = startIndex;
+        showCard(currentIndex);
+
+        // Ομαδικό OCR για όλες τις εικόνες χωρίς difficulty
+        runBatchOCRForAllUnanalyzed();
+      });
+    </script>
+  </div>
+</body>
+
+</html>
