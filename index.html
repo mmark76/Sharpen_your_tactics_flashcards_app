@@ -402,17 +402,6 @@ document.getElementById("openFenBuilderBtn").onclick = () => {
    UPLOAD HANDLER (Prompt → folder opens)
 ============================= */
 
-let firstClick = true;
-
-uploadInput.addEventListener("click", () => {
-
-  if (firstClick) {
-    firstClick = false;
-  }
-
-  // Σημαντικό: το dialog ανοίγει ΚΑΝΟΝΙΚΑ μετά το prompt
-});
-
 /* Μετά την επιλογή αρχείων → φορτώνει uploaded */
 uploadInput.addEventListener("change", (event) => {
 
@@ -448,6 +437,7 @@ uploadInput.addEventListener("change", (event) => {
 </div>
 </body>
 </html>
+
 
 
 
