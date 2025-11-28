@@ -336,6 +336,7 @@ themeSelect.onchange = () => {
 
 let currentIndex = 0;
 let mode = "Sequential";
+let defaultsRemoved = false;
 
 function updateModeButton() {
   modeBtn.textContent = (mode === "random") ? "Mode: Random" : "Mode: Sequential";
@@ -398,10 +399,9 @@ document.getElementById("openFenBuilderBtn").onclick = () => {
   window.open("https://lichess.org/editor", "_blank");
 };
 
-/* =============================
+/* ========================================
    UPLOAD HANDLER (Prompt → folder opens)
-============================= */
-
+========================================= */
 /* Μετά την επιλογή αρχείων → φορτώνει uploaded */
 uploadInput.addEventListener("change", (event) => {
 
@@ -415,6 +415,14 @@ uploadInput.addEventListener("change", (event) => {
     return;
   }
 
+  // ΜΟΝΟ στο πρώτο upload σβήνουμε τα 15 default
+  if (!defaultsRemoved) {
+    cards.length = 0;       // καθαρίζει τα default προβλήματα
+    defaultsRemoved = true;
+  }
+
+  const startIndex = cards.length;
+
   files.forEach(file => {
     const url = URL.createObjectURL(file);
     cards.push({
@@ -427,16 +435,21 @@ uploadInput.addEventListener("change", (event) => {
   statusMsg.style.color = "green";
   statusMsg.textContent =
     files.length === 1
-      ? "1 uploaded image added after the default problems."
-      : files.length + " uploaded images added after the default problems.";
+      ? "1 uploaded image added."
+      : files.length + " uploaded images added.";
 
-  currentIndex = cards.length - files.length;
+  // Πάμε στην πρώτη από τις νέες εικόνες
+  currentIndex = startIndex;
   showCard(currentIndex);
 });
+
 </script>
+  
 </div>
+  
 </body>
 </html>
+
 
 
 
